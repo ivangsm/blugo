@@ -33,6 +33,7 @@
 - **Real-time updates**: Automatic refresh every 2 seconds
 - **Scan control**: Pause/resume scanning with visual indicator
 - **Alt-screen mode**: Clean terminal on exit and resize
+- **Internationalization**: Full i18n support (English/Spanish), easily extensible for more languages
 
 ---
 
@@ -172,6 +173,7 @@ gob
 - `p`: Turn Bluetooth adapter on/off
 - `v`: Toggle Discoverable mode
 - `b`: Toggle Pairable mode
+- `l`: Switch language (English/Spanish)
 
 **General:**
 - `q` or `Ctrl+C`: Exit application

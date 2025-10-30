@@ -2,6 +2,7 @@ package ui
 
 import (
 	"github.com/charmbracelet/lipgloss"
+	"github.com/ivangsm/gob/internal/i18n"
 	"github.com/ivangsm/gob/internal/models"
 )
 
@@ -64,16 +65,16 @@ func (m Model) View() string {
 
 // renderErrorView renderiza la vista de error.
 func (m Model) renderErrorView() string {
-	title := ErrorStyle.Render("\n❌ Error")
+	title := ErrorStyle.Render("\n" + i18n.T.Error)
 	message := m.err.Error()
-	help := HelpStyle.Render("\nPresiona 'q' para salir\n")
+	help := HelpStyle.Render("\n" + i18n.T.HelpGeneral + "\n")
 
 	return lipgloss.JoinVertical(lipgloss.Left, title, "", message, help)
 }
 
 // renderLoadingView renderiza la vista de carga.
 func (m Model) renderLoadingView() string {
-	return TitleStyle.Render("⚙ Inicializando Bluetooth...") + "\n"
+	return TitleStyle.Render(i18n.T.Initializing) + "\n"
 }
 
 // renderSingleColumnLayout renderiza el layout de una columna.
@@ -122,13 +123,13 @@ func (m Model) renderFoundDevicesSection() string {
 	sections := []string{}
 
 	// Header
-	header := renderSectionHeader("📡", "DISPOSITIVOS DISPONIBLES", len(foundDevices), isFocused)
+	header := renderSectionHeader("📡", i18n.T.AvailableDevices, len(foundDevices), isFocused)
 	sections = append(sections, header)
 	sections = append(sections, m.renderSeparator())
 
 	// Lista de dispositivos
 	if len(foundDevices) == 0 {
-		sections = append(sections, renderEmptyState("No hay dispositivos disponibles"))
+		sections = append(sections, renderEmptyState(getEmptyAvailableDevicesMessage()))
 	} else {
 		deviceList := m.renderFoundDevicesList(foundDevices, isFocused)
 		sections = append(sections, deviceList)
@@ -154,13 +155,13 @@ func (m Model) renderConnectedDevicesSection() string {
 	sections := []string{}
 
 	// Header
-	header := renderSectionHeader("🔗", "DISPOSITIVOS CONECTADOS", len(connectedDevices), isFocused)
+	header := renderSectionHeader("🔗", i18n.T.ConnectedDevices, len(connectedDevices), isFocused)
 	sections = append(sections, header)
 	sections = append(sections, m.renderSeparator())
 
 	// Lista de dispositivos
 	if len(connectedDevices) == 0 {
-		sections = append(sections, renderEmptyState("No hay dispositivos conectados"))
+		sections = append(sections, renderEmptyState(getEmptyConnectedDevicesMessage()))
 	} else {
 		deviceList := m.renderConnectedDevicesList(connectedDevices, isFocused)
 		sections = append(sections, deviceList)

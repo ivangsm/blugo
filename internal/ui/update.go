@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/ivangsm/gob/internal/i18n"
 )
 
 // Update maneja las actualizaciones del modelo.
@@ -114,9 +115,9 @@ func (m Model) handleKeyPress(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		if m.manager != nil && m.adapter != nil {
 			m.busy = true
 			if m.adapter.Powered {
-				m.statusMessage = "Apagando adaptador Bluetooth..."
+				m.statusMessage = i18n.T.AdapterPoweringOff
 			} else {
-				m.statusMessage = "Encendiendo adaptador Bluetooth..."
+				m.statusMessage = i18n.T.AdapterPoweringOn
 			}
 			return m, toggleAdapterPoweredCmd(m.manager, m.adapter.Powered)
 		}
@@ -126,9 +127,9 @@ func (m Model) handleKeyPress(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		if m.manager != nil && m.adapter != nil {
 			m.busy = true
 			if m.adapter.Discoverable {
-				m.statusMessage = "Desactivando modo discoverable..."
+				m.statusMessage = i18n.T.DiscoverableDeactivating
 			} else {
-				m.statusMessage = "Activando modo discoverable..."
+				m.statusMessage = i18n.T.DiscoverableActivating
 			}
 			return m, toggleAdapterDiscoverableCmd(m.manager, m.adapter.Discoverable)
 		}
@@ -138,12 +139,17 @@ func (m Model) handleKeyPress(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		if m.manager != nil && m.adapter != nil {
 			m.busy = true
 			if m.adapter.Pairable {
-				m.statusMessage = "Desactivando modo pairable..."
+				m.statusMessage = i18n.T.PairableDeactivating
 			} else {
-				m.statusMessage = "Activando modo pairable..."
+				m.statusMessage = i18n.T.PairableActivating
 			}
 			return m, toggleAdapterPairableCmd(m.manager, m.adapter.Pairable)
 		}
+
+	case "l":
+		// Toggle Language
+		i18n.ToggleLanguage()
+		return m, nil
 	}
 
 	return m, nil
@@ -158,7 +164,7 @@ func (m Model) handlePasskeyConfirmation(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			m.agent.GetConfirmChannel() <- true
 		}
 		m.pairingPasskey = nil
-		m.statusMessage = "Confirmando pairing..."
+		m.statusMessage = "Confirming pairing..."
 		return m, nil
 
 	case "n", "esc":
@@ -168,7 +174,7 @@ func (m Model) handlePasskeyConfirmation(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		}
 		m.pairingPasskey = nil
 		m.busy = false
-		m.statusMessage = "Pairing cancelado"
+		m.statusMessage = i18n.T.PairingCancelled
 		return m, nil
 
 	case "ctrl+c", "q":
@@ -196,9 +202,9 @@ func (m Model) handleEnter() (tea.Model, tea.Cmd) {
 		// Conectar dispositivo
 		m.busy = true
 		if dev.Paired {
-			m.statusMessage = fmt.Sprintf("Conectando a %s...", dev.GetDisplayName())
+			m.statusMessage = fmt.Sprintf(i18n.T.Connecting, dev.GetDisplayName())
 		} else {
-			m.statusMessage = fmt.Sprintf("Pareando %s...", dev.GetDisplayName())
+			m.statusMessage = fmt.Sprintf(i18n.T.Pairing, dev.GetDisplayName())
 			m.waitingForPasskey = true
 		}
 		return m, tea.Batch(
@@ -208,7 +214,7 @@ func (m Model) handleEnter() (tea.Model, tea.Cmd) {
 	} else {
 		// Desconectar dispositivo
 		m.busy = true
-		m.statusMessage = fmt.Sprintf("Desconectando de %s (manteniendo pairing)...", dev.GetDisplayName())
+		m.statusMessage = fmt.Sprintf(i18n.T.Disconnecting, dev.GetDisplayName())
 		return m, disconnectFromDeviceCmd(m.manager, dev)
 	}
 }
@@ -226,7 +232,7 @@ func (m Model) handleForget() (tea.Model, tea.Cmd) {
 
 	if m.focusSection == "connected" || (m.focusSection == "found" && dev.Paired) {
 		m.busy = true
-		m.statusMessage = fmt.Sprintf("Olvidando %s...", dev.GetDisplayName())
+		m.statusMessage = fmt.Sprintf(i18n.T.Forgetting, dev.GetDisplayName())
 		return m, forgetDeviceCmd(m.manager, dev)
 	}
 
@@ -243,7 +249,7 @@ func (m Model) handleInit(msg InitMsg) (tea.Model, tea.Cmd) {
 	m.manager = msg.Manager
 	m.agent = msg.Agent
 	m.scanning = true
-	m.statusMessage = "Escaneando dispositivos Bluetooth..."
+	m.statusMessage = "Scanning Bluetooth devices..."
 	return m, tea.Batch(
 		updateDevicesCmd(m.manager),
 		updateAdapterInfoCmd(m.manager),
@@ -254,9 +260,9 @@ func (m Model) handleInit(msg InitMsg) (tea.Model, tea.Cmd) {
 func (m Model) handleScanning(msg ScanningMsg) (tea.Model, tea.Cmd) {
 	m.scanning = msg.Scanning
 	if msg.Scanning {
-		m.statusMessage = "Escaneo activado"
+		m.statusMessage = i18n.T.ScanEnabled
 	} else {
-		m.statusMessage = "Escaneo pausado"
+		m.statusMessage = i18n.T.ScanPaused
 	}
 	return m, nil
 }
@@ -296,12 +302,12 @@ func (m Model) handleConnectResult(msg ConnectResultMsg) (tea.Model, tea.Cmd) {
 	} else {
 		if dev, ok := m.devices[msg.Address]; ok {
 			if dev.Connected {
-				m.statusMessage = fmt.Sprintf("✓ Conectado a %s", dev.GetDisplayName())
+				m.statusMessage = fmt.Sprintf(i18n.T.Connected, dev.GetDisplayName())
 			} else {
 				if dev.Paired {
-					m.statusMessage = fmt.Sprintf("✓ Desconectado de %s (aún pareado)", dev.GetDisplayName())
+					m.statusMessage = fmt.Sprintf(i18n.T.DisconnectedPaired, dev.GetDisplayName())
 				} else {
-					m.statusMessage = fmt.Sprintf("✓ Desconectado de %s", dev.GetDisplayName())
+					m.statusMessage = fmt.Sprintf(i18n.T.Disconnected, dev.GetDisplayName())
 				}
 			}
 		}
@@ -339,21 +345,21 @@ func (m Model) handleAdapterPropertyChanged(msg AdapterPropertyChangedMsg) (tea.
 	switch msg.Property {
 	case "Powered":
 		if m.adapter != nil && m.adapter.Powered {
-			m.statusMessage = "✓ Adaptador Bluetooth apagado"
+			m.statusMessage = i18n.T.AdapterPoweredOff
 		} else {
-			m.statusMessage = "✓ Adaptador Bluetooth encendido"
+			m.statusMessage = i18n.T.AdapterPoweredOn
 		}
 	case "Discoverable":
 		if m.adapter != nil && m.adapter.Discoverable {
-			m.statusMessage = "✓ Modo discoverable desactivado"
+			m.statusMessage = i18n.T.DiscoverableOff
 		} else {
-			m.statusMessage = "✓ Modo discoverable activado"
+			m.statusMessage = i18n.T.DiscoverableOn
 		}
 	case "Pairable":
 		if m.adapter != nil && m.adapter.Pairable {
-			m.statusMessage = "✓ Modo pairable desactivado"
+			m.statusMessage = i18n.T.PairableOff
 		} else {
-			m.statusMessage = "✓ Modo pairable activado"
+			m.statusMessage = i18n.T.PairableOn
 		}
 	}
 

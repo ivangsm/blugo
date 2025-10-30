@@ -5,18 +5,19 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/ivangsm/gob/internal/i18n"
 	"github.com/ivangsm/gob/internal/models"
 )
 
 // renderHeader renderiza el encabezado de la aplicación.
 func (m Model) renderHeader() string {
-	title := TitleStyle.Render("🔵 GOB - Gestor Bluetooth")
+	title := TitleStyle.Render(i18n.T.AppTitle)
 
 	scanStatus := ""
 	if m.scanning {
-		scanStatus = ScanningBadgeStyle.Render("🔍 Escaneando")
+		scanStatus = ScanningBadgeStyle.Render(i18n.T.Scanning)
 	} else {
-		scanStatus = MutedStyle.Render("⏸ Pausado")
+		scanStatus = MutedStyle.Render(i18n.T.Paused)
 	}
 
 	// Usar ancho efectivo
@@ -46,11 +47,11 @@ func (m Model) renderFooter() string {
 	var helpText string
 
 	if m.pairingPasskey != nil {
-		helpText = HelpStyle.Render("Enter: confirmar | N/Esc: cancelar | Q: salir")
+		helpText = HelpStyle.Render(i18n.T.HelpPairing)
 	} else if m.focusSection == "connected" {
-		helpText = HelpStyle.Render("↑/↓: navegar | Tab: cambiar | Enter: desconectar | D/X: olvidar\nS: escaneo | P: powered | V: discoverable | B: pairable | R: refrescar | Q: salir")
+		helpText = HelpStyle.Render(i18n.T.HelpActions + "\n" + i18n.T.HelpAdapterControl)
 	} else {
-		helpText = HelpStyle.Render("↑/↓: navegar | Tab: cambiar | Enter: conectar | D/X: olvidar\nS: escaneo | P: powered | V: discoverable | B: pairable | R: refrescar | Q: salir")
+		helpText = HelpStyle.Render(i18n.T.HelpNavigation + "\n" + i18n.T.HelpAdapterControl)
 	}
 
 	// Usar ancho efectivo
@@ -90,9 +91,9 @@ func (m Model) renderStatusBar() string {
 
 // renderPasskeyPrompt renderiza el prompt de passkey.
 func (m Model) renderPasskeyPrompt() string {
-	passkeyText := fmt.Sprintf("🔑 CÓDIGO DE PAIRING: %06d", *m.pairingPasskey)
-	instruction := WarningStyle.Render("⌨️  Escribe este código en tu teclado y presiona Enter")
-	confirm := HelpStyle.Render("Luego presiona Enter aquí para confirmar, o Esc/N para cancelar")
+	passkeyText := fmt.Sprintf(i18n.T.PairingCode, *m.pairingPasskey)
+	instruction := WarningStyle.Render(i18n.T.PairingInstruction)
+	confirm := HelpStyle.Render(i18n.T.PairingConfirm)
 
 	content := lipgloss.JoinVertical(
 		lipgloss.Center,
@@ -156,13 +157,13 @@ func renderDeviceItem(dev *models.Device, isSelected bool, showRSSI bool) string
 	// Badges
 	var badges []string
 	if dev.Paired {
-		badges = append(badges, PairedBadgeStyle.Render("PAREADO"))
+		badges = append(badges, PairedBadgeStyle.Render(i18n.T.BadgePaired))
 	}
 	if dev.Trusted {
-		badges = append(badges, SuccessStyle.Render("Confiable"))
+		badges = append(badges, SuccessStyle.Render(i18n.T.BadgeTrusted))
 	}
 	if dev.Connected {
-		badges = append(badges, ConnectedBadgeStyle.Render("CONECTADO"))
+		badges = append(badges, ConnectedBadgeStyle.Render(i18n.T.BadgeConnected))
 	}
 
 	// Construir la línea
@@ -190,6 +191,16 @@ func renderEmptyState(message string) string {
 	return MutedStyle.Padding(2, 4).Render(message)
 }
 
+// getEmptyDevicesMessage returns the appropriate empty state message
+func getEmptyAvailableDevicesMessage() string {
+	return i18n.T.NoDevicesAvailable
+}
+
+// getEmptyConnectedDevicesMessage returns the appropriate empty state message
+func getEmptyConnectedDevicesMessage() string {
+	return i18n.T.NoDevicesConnected
+}
+
 // renderSeparator renderiza un separador.
 func (m Model) renderSeparator() string {
 	// Usar ancho efectivo
@@ -215,7 +226,7 @@ func (m Model) renderThickSeparator() string {
 // renderAdapterTable renderiza la tabla de información del adaptador.
 func (m Model) renderAdapterTable() string {
 	if m.adapter == nil {
-		return BoxStyle.Render(MutedStyle.Render("Cargando información del adaptador..."))
+		return BoxStyle.Render(MutedStyle.Render("Loading adapter information..."))
 	}
 
 	// Crear estilos para la tabla
@@ -231,11 +242,11 @@ func (m Model) renderAdapterTable() string {
 
 	// Headers
 	headers := []string{
-		headerCellStyle.Render("Name"),
-		headerCellStyle.Render("Alias"),
-		headerCellStyle.Render("Power"),
-		headerCellStyle.Render("Pairable"),
-		headerCellStyle.Render("Discoverable"),
+		headerCellStyle.Render(i18n.T.AdapterName),
+		headerCellStyle.Render(i18n.T.AdapterAlias),
+		headerCellStyle.Render(i18n.T.AdapterPower),
+		headerCellStyle.Render(i18n.T.AdapterPairable),
+		headerCellStyle.Render(i18n.T.AdapterDiscoverable),
 	}
 
 	// Values
@@ -245,25 +256,25 @@ func (m Model) renderAdapterTable() string {
 	// Power con color
 	var powerVal string
 	if m.adapter.Powered {
-		powerVal = valueCellStyle.Render(SuccessStyle.Render("ON"))
+		powerVal = valueCellStyle.Render(SuccessStyle.Render(i18n.T.StatusOn))
 	} else {
-		powerVal = valueCellStyle.Render(ErrorStyle.Render("OFF"))
+		powerVal = valueCellStyle.Render(ErrorStyle.Render(i18n.T.StatusOff))
 	}
 
 	// Pairable con color
 	var pairableVal string
 	if m.adapter.Pairable {
-		pairableVal = valueCellStyle.Render(SuccessStyle.Render("ON"))
+		pairableVal = valueCellStyle.Render(SuccessStyle.Render(i18n.T.StatusOn))
 	} else {
-		pairableVal = valueCellStyle.Render(MutedStyle.Render("OFF"))
+		pairableVal = valueCellStyle.Render(MutedStyle.Render(i18n.T.StatusOff))
 	}
 
 	// Discoverable con color
 	var discoverableVal string
 	if m.adapter.Discoverable {
-		discoverableVal = valueCellStyle.Render(SuccessStyle.Render("ON"))
+		discoverableVal = valueCellStyle.Render(SuccessStyle.Render(i18n.T.StatusOn))
 	} else {
-		discoverableVal = valueCellStyle.Render(MutedStyle.Render("OFF"))
+		discoverableVal = valueCellStyle.Render(MutedStyle.Render(i18n.T.StatusOff))
 	}
 
 	values := []string{nameVal, aliasVal, powerVal, pairableVal, discoverableVal}
@@ -275,7 +286,7 @@ func (m Model) renderAdapterTable() string {
 
 	table := lipgloss.JoinVertical(
 		lipgloss.Left,
-		HeaderStyle.Render(fmt.Sprintf("%s Adaptador Bluetooth", m.adapter.GetStatusIcon())),
+		HeaderStyle.Render(fmt.Sprintf("%s %s", m.adapter.GetStatusIcon(), i18n.T.AdapterInfo)),
 		separator,
 		headerRow,
 		valueRow,

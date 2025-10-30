@@ -33,6 +33,7 @@ Español | [English](README.md)
 - **Actualizaciones en tiempo real**: Refresco automático cada 2 segundos
 - **Control de escaneo**: Pausar/reanudar el escaneo con indicador visual
 - **Modo pantalla alternativa**: Terminal limpia al salir y redimensionar
+- **Internacionalización**: Soporte completo de i18n (Inglés/Español), fácilmente extensible para más idiomas
 
 ---
 
@@ -173,6 +174,7 @@ gob
 - `p`: Encender/apagar el adaptador Bluetooth
 - `v`: Activar/desactivar modo Discoverable
 - `b`: Activar/desactivar modo Pairable
+- `l`: Cambiar idioma (Inglés/Español)
 
 **General:**
 - `q` o `Ctrl+C`: Salir de la aplicación
