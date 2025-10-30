@@ -54,5 +54,17 @@ type PasskeyDisplayMsg struct {
 // PasskeyConfirmedMsg indica que el passkey fue confirmado.
 type PasskeyConfirmedMsg struct{}
 
+// AdapterUpdateMsg contiene información actualizada del adaptador.
+type AdapterUpdateMsg struct {
+	Adapter *models.Adapter
+}
+
+// AdapterPropertyChangedMsg indica que una propiedad del adaptador cambió.
+type AdapterPropertyChangedMsg struct {
+	Property string
+	Success  bool
+	Err      error
+}
+
 // TickMsg es un tick del reloj para actualizaciones periódicas.
 type TickMsg time.Time

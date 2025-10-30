@@ -13,6 +13,7 @@ import (
 type Model struct {
 	manager           *bluetooth.Manager
 	agent             *agent.Agent
+	adapter           *models.Adapter
 	devices           map[string]*models.Device
 	selectedIndex     int
 	focusSection      string // "found" o "connected"
@@ -23,6 +24,8 @@ type Model struct {
 	err               error
 	pairingPasskey    *uint32
 	waitingForPasskey bool
+	width             int // Ancho de la terminal
+	height            int // Alto de la terminal
 }
 
 // NewModel crea un nuevo modelo de UI.

@@ -9,6 +9,11 @@ import (
 // Update maneja las actualizaciones del modelo.
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+		m.width = msg.Width
+		m.height = msg.Height
+		return m, nil
+
 	case tea.KeyMsg:
 		return m.handleKeyPress(msg)
 
@@ -29,6 +34,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case StatusMsg:
 		return m.handleStatus(msg)
+
+	case AdapterUpdateMsg:
+		return m.handleAdapterUpdate(msg)
+
+	case AdapterPropertyChangedMsg:
+		return m.handleAdapterPropertyChanged(msg)
 
 	case TickMsg:
 		return m.handleTick()
@@ -95,6 +106,42 @@ func (m Model) handleKeyPress(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "r":
 		if m.manager != nil {
 			return m, updateDevicesCmd(m.manager)
+		}
+
+	case "p":
+		// Toggle Powered (encender/apagar Bluetooth)
+		if m.manager != nil && m.adapter != nil {
+			m.busy = true
+			if m.adapter.Powered {
+				m.statusMessage = "Apagando adaptador Bluetooth..."
+			} else {
+				m.statusMessage = "Encendiendo adaptador Bluetooth..."
+			}
+			return m, toggleAdapterPoweredCmd(m.manager, m.adapter.Powered)
+		}
+
+	case "v":
+		// Toggle Discoverable
+		if m.manager != nil && m.adapter != nil {
+			m.busy = true
+			if m.adapter.Discoverable {
+				m.statusMessage = "Desactivando modo discoverable..."
+			} else {
+				m.statusMessage = "Activando modo discoverable..."
+			}
+			return m, toggleAdapterDiscoverableCmd(m.manager, m.adapter.Discoverable)
+		}
+
+	case "b":
+		// Toggle Pairable
+		if m.manager != nil && m.adapter != nil {
+			m.busy = true
+			if m.adapter.Pairable {
+				m.statusMessage = "Desactivando modo pairable..."
+			} else {
+				m.statusMessage = "Activando modo pairable..."
+			}
+			return m, toggleAdapterPairableCmd(m.manager, m.adapter.Pairable)
 		}
 	}
 
@@ -196,7 +243,10 @@ func (m Model) handleInit(msg InitMsg) (tea.Model, tea.Cmd) {
 	m.agent = msg.Agent
 	m.scanning = true
 	m.statusMessage = "Escaneando dispositivos Bluetooth..."
-	return m, updateDevicesCmd(m.manager)
+	return m, tea.Batch(
+		updateDevicesCmd(m.manager),
+		updateAdapterInfoCmd(m.manager),
+	)
 }
 
 // handleScanning maneja el cambio de estado de escaneo.
@@ -268,12 +318,57 @@ func (m Model) handleStatus(msg StatusMsg) (tea.Model, tea.Cmd) {
 	return m, updateDevicesCmd(m.manager)
 }
 
+// handleAdapterUpdate maneja la actualización de información del adaptador.
+func (m Model) handleAdapterUpdate(msg AdapterUpdateMsg) (tea.Model, tea.Cmd) {
+	m.adapter = msg.Adapter
+	return m, nil
+}
+
+// handleAdapterPropertyChanged maneja el cambio de una propiedad del adaptador.
+func (m Model) handleAdapterPropertyChanged(msg AdapterPropertyChangedMsg) (tea.Model, tea.Cmd) {
+	m.busy = false
+
+	if msg.Err != nil {
+		m.statusMessage = fmt.Sprintf("❌ Error al cambiar %s: %s", msg.Property, msg.Err.Error())
+		m.isError = true
+		return m, nil
+	}
+
+	// Mensajes de éxito según la propiedad
+	switch msg.Property {
+	case "Powered":
+		if m.adapter != nil && m.adapter.Powered {
+			m.statusMessage = "✓ Adaptador Bluetooth apagado"
+		} else {
+			m.statusMessage = "✓ Adaptador Bluetooth encendido"
+		}
+	case "Discoverable":
+		if m.adapter != nil && m.adapter.Discoverable {
+			m.statusMessage = "✓ Modo discoverable desactivado"
+		} else {
+			m.statusMessage = "✓ Modo discoverable activado"
+		}
+	case "Pairable":
+		if m.adapter != nil && m.adapter.Pairable {
+			m.statusMessage = "✓ Modo pairable desactivado"
+		} else {
+			m.statusMessage = "✓ Modo pairable activado"
+		}
+	}
+
+	m.isError = false
+
+	// Actualizar información del adaptador
+	return m, updateAdapterInfoCmd(m.manager)
+}
+
 // handleTick maneja el tick periódico.
 func (m Model) handleTick() (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 	cmds = append(cmds, tickCmd())
 	if m.manager != nil {
 		cmds = append(cmds, updateDevicesCmd(m.manager))
+		cmds = append(cmds, updateAdapterInfoCmd(m.manager))
 	}
 	return m, tea.Batch(cmds...)
 }

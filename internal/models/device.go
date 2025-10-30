@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/godbus/dbus/v5"
@@ -18,6 +19,7 @@ type Device struct {
 	RSSI      int16
 	Icon      string
 	Class     uint32
+	Battery   *uint8 // Nivel de batería (0-100), nil si no disponible
 	LastSeen  time.Time
 }
 
@@ -78,4 +80,38 @@ func (d *Device) GetIcon() string {
 	}
 
 	return "📶"
+}
+
+// GetBatteryInfo devuelve el icono y texto de la batería.
+// Retorna ("", "") si no hay información de batería disponible.
+func (d *Device) GetBatteryInfo() (icon string, text string) {
+	if d.Battery == nil {
+		return "", ""
+	}
+
+	level := *d.Battery
+
+	// Elegir icono según el nivel
+	switch {
+	case level >= 90:
+		icon = "🔋" // Batería llena
+	case level >= 60:
+		icon = "🔋" // Batería alta
+	case level >= 30:
+		icon = "🔋" // Batería media
+	case level >= 15:
+		icon = "🪫" // Batería baja
+	default:
+		icon = "🪫" // Batería muy baja/crítica
+	}
+
+	// Formato del texto
+	text = fmt.Sprintf("%d%%", level)
+
+	return icon, text
+}
+
+// HasBattery indica si el dispositivo reporta nivel de batería.
+func (d *Device) HasBattery() bool {
+	return d.Battery != nil
 }

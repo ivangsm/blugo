@@ -20,7 +20,7 @@ func getDevices(conn *dbus.Conn) (map[string]*models.Device, error) {
 	devices := make(map[string]*models.Device)
 	for path, interfaces := range paths {
 		if props, ok := interfaces[bluezDeviceIface]; ok {
-			dev := parseDevice(dbus.ObjectPath(path), props)
+			dev := parseDevice(dbus.ObjectPath(path), interfaces, props)
 			devices[dev.Address] = dev
 		}
 	}
@@ -29,7 +29,7 @@ func getDevices(conn *dbus.Conn) (map[string]*models.Device, error) {
 }
 
 // parseDevice convierte las propiedades DBus en un modelo Device.
-func parseDevice(path dbus.ObjectPath, props map[string]dbus.Variant) *models.Device {
+func parseDevice(path dbus.ObjectPath, interfaces map[string]map[string]dbus.Variant, props map[string]dbus.Variant) *models.Device {
 	dev := &models.Device{
 		Path:     path,
 		LastSeen: time.Now(),
@@ -84,6 +84,15 @@ func parseDevice(path dbus.ObjectPath, props map[string]dbus.Variant) *models.De
 	// Usar Alias si no hay Name
 	if dev.Name == "" && dev.Alias != "" {
 		dev.Name = dev.Alias
+	}
+
+	// Obtener información de batería si está disponible
+	if batteryProps, ok := interfaces[bluezBatteryIface]; ok {
+		if variant, ok := batteryProps["Percentage"]; ok {
+			if percentage, ok := variant.Value().(byte); ok {
+				dev.Battery = &percentage
+			}
+		}
 	}
 
 	return dev

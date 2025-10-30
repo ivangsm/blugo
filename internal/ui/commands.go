@@ -26,8 +26,6 @@ func InitializeCmd(program *tea.Program) tea.Cmd {
 			// No es crítico, la app funcionará pero puede requerir pairing manual
 			fmt.Fprintf(os.Stderr, "⚠️  Advertencia: No se pudo registrar agente de pairing: %v\n", err)
 			fmt.Fprintf(os.Stderr, "   La app funcionará pero algunos dispositivos pueden requerir pairing manual.\n")
-		} else {
-			fmt.Fprintf(os.Stderr, "✓ Agente de pairing registrado exitosamente\n")
 		}
 
 		// Iniciar descubrimiento
@@ -143,4 +141,51 @@ func tickCmd() tea.Cmd {
 	return tea.Tick(2*time.Second, func(t time.Time) tea.Msg {
 		return TickMsg(t)
 	})
+}
+
+// updateAdapterInfoCmd actualiza la información del adaptador.
+func updateAdapterInfoCmd(manager *bluetooth.Manager) tea.Cmd {
+	return func() tea.Msg {
+		adapter, err := manager.GetAdapterInfo()
+		if err != nil {
+			return StatusMsg{Message: fmt.Sprintf("Error al obtener info del adaptador: %s", err), IsError: true}
+		}
+		return AdapterUpdateMsg{Adapter: adapter}
+	}
+}
+
+// toggleAdapterPoweredCmd enciende o apaga el adaptador.
+func toggleAdapterPoweredCmd(manager *bluetooth.Manager, currentState bool) tea.Cmd {
+	return func() tea.Msg {
+		newState := !currentState
+		err := manager.SetAdapterPowered(newState)
+		if err != nil {
+			return AdapterPropertyChangedMsg{Property: "Powered", Success: false, Err: err}
+		}
+		return AdapterPropertyChangedMsg{Property: "Powered", Success: true}
+	}
+}
+
+// toggleAdapterDiscoverableCmd activa o desactiva el modo discoverable.
+func toggleAdapterDiscoverableCmd(manager *bluetooth.Manager, currentState bool) tea.Cmd {
+	return func() tea.Msg {
+		newState := !currentState
+		err := manager.SetAdapterDiscoverable(newState)
+		if err != nil {
+			return AdapterPropertyChangedMsg{Property: "Discoverable", Success: false, Err: err}
+		}
+		return AdapterPropertyChangedMsg{Property: "Discoverable", Success: true}
+	}
+}
+
+// toggleAdapterPairableCmd activa o desactiva el modo pairable.
+func toggleAdapterPairableCmd(manager *bluetooth.Manager, currentState bool) tea.Cmd {
+	return func() tea.Msg {
+		newState := !currentState
+		err := manager.SetAdapterPairable(newState)
+		if err != nil {
+			return AdapterPropertyChangedMsg{Property: "Pairable", Success: false, Err: err}
+		}
+		return AdapterPropertyChangedMsg{Property: "Pairable", Success: true}
+	}
 }

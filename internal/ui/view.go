@@ -1,181 +1,189 @@
 package ui
 
 import (
-	"fmt"
-
+	"github.com/charmbracelet/lipgloss"
 	"github.com/ivangsm/gob/internal/models"
 )
 
 // View renderiza la interfaz de usuario.
 func (m Model) View() string {
 	if m.err != nil {
-		return ErrorStyle.Render(fmt.Sprintf("\n❌ Error: %s\n\nPresiona 'q' para salir\n", m.err))
+		return m.renderErrorView()
 	}
 
 	if m.manager == nil {
-		return TitleStyle.Render("⚙ Inicializando Bluetooth...") + "\n"
+		return m.renderLoadingView()
 	}
 
-	s := "\n"
-	s += TitleStyle.Render("🔵 Gestor Bluetooth (BlueZ)") + "\n\n"
+	// Layout principal
+	sections := []string{}
 
-	// Mostrar passkey si está activo
+	// Header
+	sections = append(sections, m.renderHeader())
+
+	// Passkey prompt (si existe)
 	if m.pairingPasskey != nil {
-		s += m.renderPasskeyPrompt()
+		sections = append(sections, "", m.renderPasskeyPrompt(), "")
 	}
 
-	// Mensaje de estado
+	// Status bar (si existe)
 	if m.statusMessage != "" {
-		s += m.renderStatusMessage()
+		sections = append(sections, "", m.renderStatusBar())
 	}
 
-	// Indicador de escaneo
-	s += m.renderScanIndicator()
+	sections = append(sections, "")
 
-	// Sección de dispositivos encontrados
-	s += m.renderFoundDevices()
+	// Tabla de información del adaptador (siempre visible)
+	sections = append(sections, m.renderAdapterTable())
 
-	s += "\n"
+	sections = append(sections, "")
+
+	// Contenido principal - layout responsivo
+	if m.width >= 120 {
+		// Layout de dos columnas para pantallas anchas
+		sections = append(sections, m.renderTwoColumnLayout())
+	} else {
+		// Layout de una columna para pantallas normales/pequeñas
+		sections = append(sections, m.renderSingleColumnLayout())
+	}
+
+	sections = append(sections, "")
+
+	// Footer
+	sections = append(sections, m.renderFooter())
+
+	return lipgloss.JoinVertical(lipgloss.Left, sections...)
+}
+
+// renderErrorView renderiza la vista de error.
+func (m Model) renderErrorView() string {
+	title := ErrorStyle.Render("\n❌ Error")
+	message := m.err.Error()
+	help := HelpStyle.Render("\nPresiona 'q' para salir\n")
+
+	return lipgloss.JoinVertical(lipgloss.Left, title, "", message, help)
+}
+
+// renderLoadingView renderiza la vista de carga.
+func (m Model) renderLoadingView() string {
+	return TitleStyle.Render("⚙ Inicializando Bluetooth...") + "\n"
+}
+
+// renderSingleColumnLayout renderiza el layout de una columna.
+func (m Model) renderSingleColumnLayout() string {
+	sections := []string{}
+
+	// Sección de dispositivos disponibles
+	sections = append(sections, m.renderFoundDevicesSection())
+
+	sections = append(sections, "")
 
 	// Sección de dispositivos conectados
-	s += m.renderConnectedDevices()
+	sections = append(sections, m.renderConnectedDevicesSection())
 
-	s += "\n"
-
-	// Ayuda
-	s += m.renderHelp()
-
-	return s
+	return lipgloss.JoinVertical(lipgloss.Left, sections...)
 }
 
-// renderPasskeyPrompt renderiza el prompt de passkey.
-func (m Model) renderPasskeyPrompt() string {
-	s := PasskeyStyle.Render(fmt.Sprintf("🔑 CÓDIGO DE PAIRING: %06d", *m.pairingPasskey)) + "\n\n"
-	s += WarningStyle.Render("⌨️  Escribe este código en tu teclado y presiona Enter") + "\n"
-	s += HelpStyle.Render("Luego presiona Enter aquí para confirmar, o Esc/N para cancelar") + "\n\n"
-	return s
+// renderTwoColumnLayout renderiza el layout de dos columnas.
+func (m Model) renderTwoColumnLayout() string {
+	leftColumn := m.renderFoundDevicesSection()
+	rightColumn := m.renderConnectedDevicesSection()
+
+	// Calcular el ancho de cada columna
+	columnWidth := (m.width - 6) / 2
+
+	// Aplicar el ancho a las columnas
+	leftStyled := lipgloss.NewStyle().Width(columnWidth).Render(leftColumn)
+	rightStyled := lipgloss.NewStyle().Width(columnWidth).Render(rightColumn)
+
+	return lipgloss.JoinHorizontal(
+		lipgloss.Top,
+		leftStyled,
+		"  ",
+		rightStyled,
+	)
 }
 
-// renderStatusMessage renderiza el mensaje de estado.
-func (m Model) renderStatusMessage() string {
-	if m.busy {
-		return ConnectingStyle.Render("⚙ "+m.statusMessage) + "\n\n"
-	} else if m.isError {
-		return ErrorStyle.Render(m.statusMessage) + "\n\n"
-	} else {
-		return StatusStyle.Render(m.statusMessage) + "\n\n"
-	}
-}
-
-// renderScanIndicator renderiza el indicador de escaneo.
-func (m Model) renderScanIndicator() string {
-	scanIndicator := "⏸ Pausado"
-	if m.scanning {
-		scanIndicator = "🔍 Escaneando"
-	}
-	return WarningStyle.Render(scanIndicator) + "\n\n"
-}
-
-// renderFoundDevices renderiza la sección de dispositivos disponibles.
-func (m Model) renderFoundDevices() string {
+// renderFoundDevicesSection renderiza la sección de dispositivos disponibles.
+func (m Model) renderFoundDevicesSection() string {
 	foundDevices := m.GetFoundDevices()
-	focusMarker := ""
-	if m.focusSection == "found" {
-		focusMarker = " ◀"
-	}
+	isFocused := m.focusSection == "found"
 
-	s := HeaderStyle.Render("📡 DISPOSITIVOS DISPONIBLES"+focusMarker) + " "
-	s += fmt.Sprintf("(%d)", len(foundDevices))
-	s += "\n"
-	s += SeparatorStyle.Render("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━") + "\n"
+	sections := []string{}
 
+	// Header
+	header := renderSectionHeader("📡", "DISPOSITIVOS DISPONIBLES", len(foundDevices), isFocused)
+	sections = append(sections, header)
+	sections = append(sections, m.renderSeparator())
+
+	// Lista de dispositivos
 	if len(foundDevices) == 0 {
-		s += DeviceStyle.Render("  No hay dispositivos disponibles") + "\n"
+		sections = append(sections, renderEmptyState("No hay dispositivos disponibles"))
 	} else {
-		for i, dev := range foundDevices {
-			s += m.renderDevice(dev, i, m.focusSection == "found")
-		}
+		deviceList := m.renderFoundDevicesList(foundDevices, isFocused)
+		sections = append(sections, deviceList)
 	}
 
-	return s
+	// Aplicar borde de panel si está enfocado
+	content := lipgloss.JoinVertical(lipgloss.Left, sections...)
+
+	if isFocused {
+		return FocusedPanelStyle.Render(content)
+	}
+	return PanelStyle.Render(content)
 }
 
-// renderConnectedDevices renderiza la sección de dispositivos conectados.
-func (m Model) renderConnectedDevices() string {
+// renderConnectedDevicesSection renderiza la sección de dispositivos conectados.
+func (m Model) renderConnectedDevicesSection() string {
 	connectedDevices := m.GetConnectedDevices()
-	focusMarker := ""
-	if m.focusSection == "connected" {
-		focusMarker = " ◀"
-	}
+	isFocused := m.focusSection == "connected"
 
-	s := HeaderStyle.Render("🔗 DISPOSITIVOS CONECTADOS"+focusMarker) + " "
-	s += fmt.Sprintf("(%d)", len(connectedDevices))
-	s += "\n"
-	s += SeparatorStyle.Render("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━") + "\n"
+	sections := []string{}
 
+	// Header
+	header := renderSectionHeader("🔗", "DISPOSITIVOS CONECTADOS", len(connectedDevices), isFocused)
+	sections = append(sections, header)
+	sections = append(sections, m.renderSeparator())
+
+	// Lista de dispositivos
 	if len(connectedDevices) == 0 {
-		s += ConnectedStyle.Render("  No hay dispositivos conectados") + "\n"
+		sections = append(sections, renderEmptyState("No hay dispositivos conectados"))
 	} else {
-		for i, dev := range connectedDevices {
-			s += m.renderConnectedDevice(dev, i, m.focusSection == "connected")
-		}
+		deviceList := m.renderConnectedDevicesList(connectedDevices, isFocused)
+		sections = append(sections, deviceList)
 	}
 
-	return s
+	// Aplicar borde de panel si está enfocado
+	content := lipgloss.JoinVertical(lipgloss.Left, sections...)
+
+	if isFocused {
+		return FocusedPanelStyle.Render(content)
+	}
+	return PanelStyle.Render(content)
 }
 
-// renderDevice renderiza un dispositivo disponible.
-func (m Model) renderDevice(dev *models.Device, index int, isFocused bool) string {
-	icon := dev.GetIcon()
-	name := dev.GetDisplayName()
+// renderFoundDevicesList renderiza la lista de dispositivos disponibles.
+func (m Model) renderFoundDevicesList(devices []*models.Device, isFocused bool) string {
+	items := []string{}
 
-	pairedMarker := ""
-	if dev.Paired {
-		pairedMarker = " [PAREADO]"
+	for i, dev := range devices {
+		isSelected := isFocused && i == m.selectedIndex
+		item := renderDeviceItem(dev, isSelected, true)
+		items = append(items, item)
 	}
 
-	rssiInfo := ""
-	if dev.RSSI != 0 {
-		rssiInfo = fmt.Sprintf(" | %d dBm", dev.RSSI)
-	}
-
-	line := fmt.Sprintf("  %s %s (%s)%s%s", icon, name, dev.Address, rssiInfo, pairedMarker)
-
-	if isFocused && index == m.selectedIndex {
-		return SelectedStyle.Render("▶ "+line) + "\n"
-	}
-	return DeviceStyle.Render(line) + "\n"
+	return lipgloss.JoinVertical(lipgloss.Left, items...)
 }
 
-// renderConnectedDevice renderiza un dispositivo conectado.
-func (m Model) renderConnectedDevice(dev *models.Device, index int, isFocused bool) string {
-	icon := dev.GetIcon()
-	name := dev.GetDisplayName()
+// renderConnectedDevicesList renderiza la lista de dispositivos conectados.
+func (m Model) renderConnectedDevicesList(devices []*models.Device, isFocused bool) string {
+	items := []string{}
 
-	trustedMarker := ""
-	if dev.Trusted {
-		trustedMarker = " | Confiable"
+	for i, dev := range devices {
+		isSelected := isFocused && i == m.selectedIndex
+		item := renderDeviceItem(dev, isSelected, false)
+		items = append(items, item)
 	}
 
-	line := fmt.Sprintf("  %s %s (%s)%s", icon, name, dev.Address, trustedMarker)
-
-	if isFocused && index == m.selectedIndex {
-		return SelectedStyle.Render("▶ "+line) + "\n"
-	}
-	return ConnectedStyle.Render(line) + "\n"
-}
-
-// renderHelp renderiza la ayuda.
-func (m Model) renderHelp() string {
-	if m.pairingPasskey != nil {
-		return HelpStyle.Render("Enter: confirmar pairing | N/Esc: cancelar | Q: salir") + "\n"
-	}
-
-	var helpText string
-	if m.focusSection == "connected" {
-		helpText = "↑/↓: navegar | Tab: cambiar sección | Enter: desconectar | D/X: desconectar y olvidar\nS: pausar escaneo | R: refrescar | Q: salir"
-	} else {
-		helpText = "↑/↓: navegar | Tab: cambiar sección | Enter: conectar | D/X: olvidar pareado\nS: pausar escaneo | R: refrescar | Q: salir"
-	}
-	return HelpStyle.Render(helpText) + "\n"
+	return lipgloss.JoinVertical(lipgloss.Left, items...)
 }

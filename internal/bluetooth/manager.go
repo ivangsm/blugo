@@ -8,9 +8,10 @@ import (
 )
 
 const (
-	bluezService      = "org.bluez"
-	bluezAdapterIface = "org.bluez.Adapter1"
-	bluezDeviceIface  = "org.bluez.Device1"
+	bluezService       = "org.bluez"
+	bluezAdapterIface  = "org.bluez.Adapter1"
+	bluezDeviceIface   = "org.bluez.Device1"
+	bluezBatteryIface  = "org.bluez.Battery1"
 )
 
 // Manager gestiona la conexión con BlueZ a través de DBus.
@@ -59,6 +60,111 @@ func (m *Manager) GetAdapter() dbus.ObjectPath {
 // GetDevices obtiene todos los dispositivos Bluetooth conocidos.
 func (m *Manager) GetDevices() (map[string]*models.Device, error) {
 	return getDevices(m.conn)
+}
+
+// GetAdapterInfo obtiene la información del adaptador Bluetooth.
+func (m *Manager) GetAdapterInfo() (*models.Adapter, error) {
+	obj := m.conn.Object(bluezService, m.adapter)
+
+	adapter := &models.Adapter{
+		Path: m.adapter,
+	}
+
+	// Obtener todas las propiedades del adaptador
+	props, err := obj.GetProperty("org.bluez.Adapter1.Address")
+	if err == nil {
+		if address, ok := props.Value().(string); ok {
+			adapter.Address = address
+		}
+	}
+
+	props, err = obj.GetProperty("org.bluez.Adapter1.Name")
+	if err == nil {
+		if name, ok := props.Value().(string); ok {
+			adapter.Name = name
+		}
+	}
+
+	props, err = obj.GetProperty("org.bluez.Adapter1.Alias")
+	if err == nil {
+		if alias, ok := props.Value().(string); ok {
+			adapter.Alias = alias
+		}
+	}
+
+	props, err = obj.GetProperty("org.bluez.Adapter1.Powered")
+	if err == nil {
+		if powered, ok := props.Value().(bool); ok {
+			adapter.Powered = powered
+		}
+	}
+
+	props, err = obj.GetProperty("org.bluez.Adapter1.Discoverable")
+	if err == nil {
+		if discoverable, ok := props.Value().(bool); ok {
+			adapter.Discoverable = discoverable
+		}
+	}
+
+	props, err = obj.GetProperty("org.bluez.Adapter1.Pairable")
+	if err == nil {
+		if pairable, ok := props.Value().(bool); ok {
+			adapter.Pairable = pairable
+		}
+	}
+
+	props, err = obj.GetProperty("org.bluez.Adapter1.Discovering")
+	if err == nil {
+		if discovering, ok := props.Value().(bool); ok {
+			adapter.Discovering = discovering
+		}
+	}
+
+	return adapter, nil
+}
+
+// SetAdapterPowered enciende o apaga el adaptador Bluetooth.
+func (m *Manager) SetAdapterPowered(powered bool) error {
+	obj := m.conn.Object(bluezService, m.adapter)
+	err := obj.Call("org.freedesktop.DBus.Properties.Set", 0,
+		bluezAdapterIface, "Powered", dbus.MakeVariant(powered)).Err
+	if err != nil {
+		return fmt.Errorf("error al cambiar estado del adaptador: %w", err)
+	}
+	return nil
+}
+
+// SetAdapterDiscoverable activa o desactiva el modo discoverable.
+func (m *Manager) SetAdapterDiscoverable(discoverable bool) error {
+	obj := m.conn.Object(bluezService, m.adapter)
+	err := obj.Call("org.freedesktop.DBus.Properties.Set", 0,
+		bluezAdapterIface, "Discoverable", dbus.MakeVariant(discoverable)).Err
+	if err != nil {
+		return fmt.Errorf("error al cambiar modo discoverable: %w", err)
+	}
+	return nil
+}
+
+// SetAdapterPairable activa o desactiva el modo pairable.
+func (m *Manager) SetAdapterPairable(pairable bool) error {
+	obj := m.conn.Object(bluezService, m.adapter)
+	err := obj.Call("org.freedesktop.DBus.Properties.Set", 0,
+		bluezAdapterIface, "Pairable", dbus.MakeVariant(pairable)).Err
+	if err != nil {
+		return fmt.Errorf("error al cambiar modo pairable: %w", err)
+	}
+	return nil
+}
+
+// SetAdapterAlias cambia el alias (nombre visible) del adaptador.
+func (m *Manager) SetAdapterAlias(alias string) error {
+	obj := m.conn.Object(bluezService, m.adapter)
+	err := obj.Call("org.freedesktop.DBus.Properties.Set", 0,
+		bluezAdapterIface, "Alias", dbus.MakeVariant(alias)).Err
+	if err != nil {
+		return fmt.Errorf("error al cambiar alias del adaptador: %w", err)
+	}
+	return nil
 }
 
 // getAdapter encuentra el primer adaptador Bluetooth disponible.

@@ -12,10 +12,21 @@ GOB es una aplicación de terminal interactiva que permite gestionar dispositivo
 - **Pairing automático**: Emparejamiento de dispositivos con soporte para autenticación por passkey
 - **Gestión de conexiones**: Conectar y desconectar dispositivos de forma sencilla
 - **Información detallada**: Muestra nombre, dirección MAC, intensidad de señal (RSSI) y tipo de dispositivo
-- **Interfaz dual**: Visualización separada de dispositivos disponibles y conectados
-- **Iconos por tipo**: Identificación visual de dispositivos (auriculares, teléfonos, teclados, etc.)
-- **Control de escaneo**: Pausar y reanudar el escaneo para ahorrar batería
+- **Indicador de batería**: Visualización del nivel de batería de dispositivos compatibles con colores dinámicos
+- **Interfaz moderna y responsiva**:
+  - Layout adaptable que cambia entre una y dos columnas según el ancho de la terminal
+  - Diseño con bordes redondeados, badges y separadores elegantes
+  - Paneles con resaltado visual para la sección activa
+  - Componentes reutilizables y modulares
+- **Iconos y badges**: Identificación visual de dispositivos y estados (pareado, conectado, confiable)
+- **Control de escaneo**: Pausar y reanudar el escaneo con indicador visual en tiempo real
 - **Olvidar dispositivos**: Eliminar dispositivos pareados del sistema
+- **Control del adaptador Bluetooth**:
+  - Ver información detallada del adaptador (nombre, dirección, estado)
+  - Encender/apagar el adaptador Bluetooth (tecla `P`)
+  - Activar/desactivar modo Discoverable (tecla `V`) - Hacer el adaptador visible para otros dispositivos
+  - Activar/desactivar modo Pairable (tecla `B`) - Permitir emparejamiento con nuevos dispositivos
+  - Panel de información con tecla `I`
 
 ## Requisitos
 
@@ -99,10 +110,18 @@ gob
 - `Tab`: Cambiar entre secciones (disponibles/conectados)
 - `r`: Refrescar lista de dispositivos manualmente
 
-**Acciones:**
+**Acciones de dispositivos:**
 - `Enter`: Conectar a un dispositivo disponible / Desconectar un dispositivo conectado
 - `d` o `x`: Olvidar dispositivo (desconectar y eliminar pairing)
 - `s`: Pausar/reanudar escaneo de dispositivos
+
+**Control del adaptador:**
+- `i`: Mostrar/ocultar información del adaptador
+- `p`: Encender/apagar el adaptador Bluetooth
+- `v`: Activar/desactivar modo Discoverable
+- `b`: Activar/desactivar modo Pairable
+
+**General:**
 - `q` o `Ctrl+C`: Salir de la aplicación
 
 **Durante el pairing:**
@@ -131,22 +150,23 @@ docker run --rm -it --privileged --net=host \
 
 ### Próximas características
 
-- [ ] **Indicador de batería**: Mostrar el nivel de batería de dispositivos compatibles
-- [ ] **Mejoras en la TUI**:
-  - Diseño más moderno y personalizable
-  - Temas de color
-  - Mejor visualización de información
-  - Animaciones y transiciones suaves
-- [ ] **Control del adaptador Bluetooth**:
-  - Encender/apagar el adaptador por completo
-  - Reiniciar el servicio Bluetooth
-- [ ] **Información del adaptador**:
-  - Mostrar nombre/alias del adaptador Bluetooth
-  - Ver y editar información del adaptador
-- [ ] **Modos del adaptador**:
-  - Activar/desactivar modo Pairable (emparejamiento)
-  - Activar/desactivar modo Discoverable (detectable)
-  - Configurar timeouts de visibilidad
+- [x] **Indicador de batería**: Mostrar el nivel de batería de dispositivos compatibles
+- [x] **Mejoras en la TUI**:
+  - Layout responsivo (1 o 2 columnas según ancho de terminal)
+  - Diseño moderno con bordes y paneles
+  - Badges y estilos de colores mejorados
+  - Componentes UI reutilizables
+  - [ ] Temas de color personalizables
+  - [ ] Animaciones y transiciones suaves
+- [x] **Control del adaptador Bluetooth**:
+  - [x] Encender/apagar el adaptador por completo
+  - [x] Mostrar nombre/alias del adaptador Bluetooth
+  - [x] Ver información del adaptador
+  - [x] Activar/desactivar modo Pairable (emparejamiento)
+  - [x] Activar/desactivar modo Discoverable (detectable)
+  - [ ] Reiniciar el servicio Bluetooth
+  - [ ] Editar alias del adaptador
+  - [ ] Configurar timeouts de visibilidad
 
 ### Futuras mejoras
 
@@ -190,7 +210,9 @@ gob/
 - **Dependency Inversion**: Módulos de alto nivel no dependen de detalles de implementación
 - **The Elm Architecture**: UI reactiva con Model-Update-View
 
-Para más detalles sobre la arquitectura, patrones y mejores prácticas, consulta [ARCHITECTURE.md](ARCHITECTURE.md).
+Para más detalles sobre la arquitectura, patrones y mejores prácticas, consulta:
+- [ARCHITECTURE.md](ARCHITECTURE.md) - Arquitectura y patrones de diseño
+- [docs/UI_IMPROVEMENTS.md](docs/UI_IMPROVEMENTS.md) - Mejoras de la interfaz de usuario
 
 ### Comandos Make Disponibles
 
