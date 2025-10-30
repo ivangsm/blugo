@@ -18,6 +18,9 @@ go.work.sum
 # Compiled binary
 blugo
 /blugo
+blugo-*
+*.tar.gz
+*.sha256
 
 # IDE specific files
 .vscode/
