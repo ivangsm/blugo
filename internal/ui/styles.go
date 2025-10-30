@@ -1,6 +1,9 @@
 package ui
 
-import "github.com/charmbracelet/lipgloss"
+import (
+	"github.com/charmbracelet/lipgloss"
+	"github.com/ivangsm/blugo/internal/config"
+)
 
 // Colores del tema
 var (
@@ -155,12 +158,43 @@ func min(a, b int) int {
 
 // GetBatteryStyle retorna el estilo apropiado según el nivel de batería.
 func GetBatteryStyle(level uint8) lipgloss.Style {
+	highThreshold := 60
+	lowThreshold := 30
+
+	if config.Global != nil {
+		highThreshold = config.Global.BatteryHighThreshold
+		lowThreshold = config.Global.BatteryLowThreshold
+	}
+
 	switch {
-	case level >= 60:
+	case level >= uint8(highThreshold):
 		return BatteryHighStyle
-	case level >= 30:
+	case level >= uint8(lowThreshold):
 		return BatteryMediumStyle
 	default:
 		return BatteryLowStyle
 	}
+}
+
+// GetMaxWidth returns the configured maximum terminal width
+func GetMaxWidth() int {
+	if config.Global != nil {
+		width := config.Global.MaxTerminalWidth
+		// Validate range
+		if width < 80 {
+			return 80
+		} else if width > 200 {
+			return 200
+		}
+		return width
+	}
+	return 140 // Default fallback
+}
+
+// GetPadding returns padding based on compact mode
+func GetPadding() int {
+	if config.Global != nil && config.Global.CompactMode {
+		return 0
+	}
+	return 1
 }

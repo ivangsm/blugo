@@ -5,23 +5,36 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/ivangsm/blugo/internal/config"
 	"github.com/ivangsm/blugo/internal/i18n"
 	"github.com/ivangsm/blugo/internal/models"
 )
 
 // renderHeader renderiza el encabezado de la aplicación.
 func (m Model) renderHeader() string {
-	title := TitleStyle.Render("🔵 " + i18n.T.AppTitle)
+	titleText := i18n.T.AppTitle
+	if Emoji(EmojiAppTitle) != "" {
+		titleText = Emoji(EmojiAppTitle) + " " + titleText
+	}
+	title := TitleStyle.Render(titleText)
 
 	scanStatus := ""
 	if m.scanning {
-		scanStatus = ScanningBadgeStyle.Render("🔍 " + i18n.T.Scanning)
+		statusText := i18n.T.Scanning
+		if Emoji(EmojiScanning) != "" {
+			statusText = Emoji(EmojiScanning) + " " + statusText
+		}
+		scanStatus = ScanningBadgeStyle.Render(statusText)
 	} else {
-		scanStatus = MutedStyle.Render("⏸ " + i18n.T.Paused)
+		statusText := i18n.T.Paused
+		if Emoji(EmojiPaused) != "" {
+			statusText = Emoji(EmojiPaused) + " " + statusText
+		}
+		scanStatus = MutedStyle.Render(statusText)
 	}
 
 	// Usar ancho efectivo
-	effectiveWidth := min(m.width, 140)
+	effectiveWidth := min(m.width, GetMaxWidth())
 
 	// Centrar el título y alinear status a la derecha
 	if effectiveWidth > 0 {
@@ -55,7 +68,7 @@ func (m Model) renderFooter() string {
 	}
 
 	// Usar ancho efectivo
-	effectiveWidth := min(m.width, 140)
+	effectiveWidth := min(m.width, GetMaxWidth())
 
 	if effectiveWidth > 0 {
 		return FooterBoxStyle.Width(effectiveWidth - 2).Render(helpText)
@@ -72,15 +85,27 @@ func (m Model) renderStatusBar() string {
 
 	var styled string
 	if m.busy {
-		styled = ConnectingStyle.Render("⚙ " + m.statusMessage)
+		text := m.statusMessage
+		if Emoji(EmojiLoading) != "" {
+			text = Emoji(EmojiLoading) + " " + text
+		}
+		styled = ConnectingStyle.Render(text)
 	} else if m.isError {
-		styled = ErrorStyle.Render("❌ " + m.statusMessage)
+		text := m.statusMessage
+		if Emoji(EmojiError) != "" {
+			text = Emoji(EmojiError) + " " + text
+		}
+		styled = ErrorStyle.Render(text)
 	} else {
-		styled = SuccessStyle.Render("✓ " + m.statusMessage)
+		text := m.statusMessage
+		if Emoji(EmojiSuccess) != "" {
+			text = Emoji(EmojiSuccess) + " " + text
+		}
+		styled = SuccessStyle.Render(text)
 	}
 
 	// Usar ancho efectivo
-	effectiveWidth := min(m.width, 140)
+	effectiveWidth := min(m.width, GetMaxWidth())
 
 	if effectiveWidth > 0 {
 		return BoxStyle.Width(effectiveWidth - 4).Align(lipgloss.Center).Render(styled)
@@ -91,8 +116,17 @@ func (m Model) renderStatusBar() string {
 
 // renderPasskeyPrompt renderiza el prompt de passkey.
 func (m Model) renderPasskeyPrompt() string {
-	passkeyText := fmt.Sprintf("🔑 "+i18n.T.PairingCode, *m.pairingPasskey)
-	instruction := WarningStyle.Render("⌨️  " + i18n.T.PairingInstruction)
+	passkeyFormat := i18n.T.PairingCode
+	if Emoji(EmojiPairingKey) != "" {
+		passkeyFormat = Emoji(EmojiPairingKey) + " " + passkeyFormat
+	}
+	passkeyText := fmt.Sprintf(passkeyFormat, *m.pairingPasskey)
+
+	instructionText := i18n.T.PairingInstruction
+	if Emoji(EmojiKeyboard) != "" {
+		instructionText = Emoji(EmojiKeyboard) + "  " + instructionText
+	}
+	instruction := WarningStyle.Render(instructionText)
 	confirm := HelpStyle.Render(i18n.T.PairingConfirm)
 
 	content := lipgloss.JoinVertical(
@@ -104,7 +138,7 @@ func (m Model) renderPasskeyPrompt() string {
 	)
 
 	// Usar ancho efectivo
-	effectiveWidth := min(m.width, 140)
+	effectiveWidth := min(m.width, GetMaxWidth())
 
 	if effectiveWidth > 0 {
 		return PasskeyBoxStyle.Width(min(effectiveWidth-4, 70)).Render(content)
@@ -123,8 +157,8 @@ func renderSectionHeader(icon, title string, count int, isFocused bool) string {
 	countStr := renderDeviceCount(count)
 
 	focusMarker := ""
-	if isFocused {
-		focusMarker = SelectedStyle.Render(" ◀")
+	if isFocused && Emoji(EmojiFocusMarker) != "" {
+		focusMarker = SelectedStyle.Render(" " + Emoji(EmojiFocusMarker))
 	}
 
 	header := fmt.Sprintf("%s %s %s%s", icon, title, countStr, focusMarker)
@@ -136,18 +170,36 @@ func renderSectionHeader(icon, title string, count int, isFocused bool) string {
 func renderDeviceItem(dev *models.Device, isSelected bool, showRSSI bool) string {
 	icon := DeviceIconStyle.Render(dev.GetIcon())
 	name := DeviceNameStyle.Render(dev.GetDisplayName())
-	address := DeviceAddressStyle.Render(fmt.Sprintf("(%s)", dev.Address))
+
+	// Address (conditional based on config)
+	parts := []string{icon, name}
+	showAddress := true
+	if config.Global != nil {
+		showAddress = config.Global.ShowDeviceAddress
+	}
+	if showAddress {
+		address := DeviceAddressStyle.Render(fmt.Sprintf("(%s)", dev.Address))
+		parts = append(parts, address)
+	}
 
 	// Información adicional
 	var info []string
 
-	// RSSI
-	if showRSSI && dev.RSSI != 0 {
+	// RSSI (conditional based on config)
+	showRSSIConfig := true
+	if config.Global != nil {
+		showRSSIConfig = config.Global.ShowRSSI
+	}
+	if showRSSI && showRSSIConfig && dev.RSSI != 0 {
 		info = append(info, DeviceInfoStyle.Render(fmt.Sprintf("%d dBm", dev.RSSI)))
 	}
 
-	// Batería
-	if dev.HasBattery() {
+	// Batería (conditional based on config)
+	showBatteryConfig := true
+	if config.Global != nil {
+		showBatteryConfig = config.Global.ShowBattery
+	}
+	if showBatteryConfig && dev.HasBattery() {
 		battIcon, battText := dev.GetBatteryInfo()
 		batteryStr := fmt.Sprintf("%s %s", battIcon, battText)
 		batteryStyled := GetBatteryStyle(*dev.Battery).Render(batteryStr)
@@ -166,8 +218,7 @@ func renderDeviceItem(dev *models.Device, isSelected bool, showRSSI bool) string
 		badges = append(badges, ConnectedBadgeStyle.Render(i18n.T.BadgeConnected))
 	}
 
-	// Construir la línea
-	parts := []string{icon, name, address}
+	// Construir la línea (parts already initialized above)
 
 	if len(info) > 0 {
 		parts = append(parts, MutedStyle.Render("|"), strings.Join(info, " "+MutedStyle.Render("|")+" "))
@@ -180,7 +231,11 @@ func renderDeviceItem(dev *models.Device, isSelected bool, showRSSI bool) string
 	line := strings.Join(parts, " ")
 
 	if isSelected {
-		return SelectedDeviceItemStyle.Render("▶ " + line)
+		prefix := ""
+		if Emoji(EmojiSelector) != "" {
+			prefix = Emoji(EmojiSelector) + " "
+		}
+		return SelectedDeviceItemStyle.Render(prefix + line)
 	}
 
 	return DeviceItemStyle.Render(line)
@@ -204,7 +259,7 @@ func getEmptyConnectedDevicesMessage() string {
 // renderSeparator renderiza un separador.
 func (m Model) renderSeparator() string {
 	// Usar ancho efectivo
-	effectiveWidth := min(m.width, 140)
+	effectiveWidth := min(m.width, GetMaxWidth())
 
 	if effectiveWidth > 0 {
 		return SeparatorStyle.Render(strings.Repeat("─", effectiveWidth-4))
@@ -215,7 +270,7 @@ func (m Model) renderSeparator() string {
 // renderThickSeparator renderiza un separador grueso.
 func (m Model) renderThickSeparator() string {
 	// Usar ancho efectivo
-	effectiveWidth := min(m.width, 140)
+	effectiveWidth := min(m.width, GetMaxWidth())
 
 	if effectiveWidth > 0 {
 		return ThickSeparatorStyle.Render(strings.Repeat("━", effectiveWidth-4))
@@ -322,7 +377,7 @@ func (m Model) renderAdapterTable() string {
 	)
 
 	// Usar ancho efectivo
-	effectiveWidth := min(m.width, 140)
+	effectiveWidth := min(m.width, GetMaxWidth())
 
 	if effectiveWidth > 0 {
 		return BoxStyle.Width(effectiveWidth - 4).Render(table)

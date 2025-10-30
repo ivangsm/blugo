@@ -28,10 +28,10 @@ func (a *Adapter) GetDisplayName() string {
 // GetStatusIcon retorna el icono según el estado del adaptador.
 func (a *Adapter) GetStatusIcon() string {
 	if !a.Powered {
-		return "⚫" // Apagado
+		return emoji("⚫") // Apagado
 	}
 	if a.Discovering {
-		return "🔍" // Escaneando
+		return emoji("🔍") // Escaneando
 	}
-	return "🔵" // Encendido
+	return emoji("🔵") // Encendido
 }

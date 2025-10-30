@@ -10,9 +10,10 @@ import (
 
 // InitMsg indica que la inicialización ha completado.
 type InitMsg struct {
-	Manager *bluetooth.Manager
-	Agent   *agent.Agent
-	Err     error
+	Manager  *bluetooth.Manager
+	Agent    *agent.Agent
+	Scanning bool // Indicates if scanning was started
+	Err      error
 }
 
 // ScanningMsg indica un cambio en el estado de escaneo.

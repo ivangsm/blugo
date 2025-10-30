@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/ivangsm/blugo/internal/config"
 	"github.com/ivangsm/blugo/internal/i18n"
 )
 
@@ -149,6 +150,17 @@ func (m Model) handleKeyPress(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "l":
 		// Toggle Language
 		i18n.ToggleLanguage()
+
+		// Save language preference if configured
+		if config.Global != nil && config.Global.RememberLanguage {
+			// Update config with new language
+			newLang := string(i18n.GetCurrentLanguage())
+			config.Global.Language = newLang
+
+			// Save config to disk
+			_ = config.Global.Save()
+		}
+
 		return m, nil
 	}
 
@@ -248,8 +260,12 @@ func (m Model) handleInit(msg InitMsg) (tea.Model, tea.Cmd) {
 
 	m.manager = msg.Manager
 	m.agent = msg.Agent
-	m.scanning = true
-	m.statusMessage = "Scanning Bluetooth devices..."
+	m.scanning = msg.Scanning // Use the actual scanning state from init
+	if msg.Scanning {
+		m.statusMessage = i18n.T.ScanEnabled
+	} else {
+		m.statusMessage = i18n.T.ScanPaused
+	}
 	return m, tea.Batch(
 		updateDevicesCmd(m.manager),
 		updateAdapterInfoCmd(m.manager),

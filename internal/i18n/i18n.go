@@ -60,6 +60,7 @@ type Translations struct {
 
 	// Errors
 	Error             string
+	ErrorScanToggle   string
 
 	// Pairing
 	PairingCode       string
@@ -99,6 +100,19 @@ var T *Translations
 func init() {
 	// Set default language (English)
 	SetLanguage(English)
+}
+
+// InitFromConfig initializes the language based on a language code string
+// Accepts "en", "es", or falls back to English for unknown languages
+func InitFromConfig(langCode string) {
+	switch Language(langCode) {
+	case English:
+		SetLanguage(English)
+	case Spanish:
+		SetLanguage(Spanish)
+	default:
+		SetLanguage(English)
+	}
 }
 
 // detectSystemLanguage detects the system language from environment

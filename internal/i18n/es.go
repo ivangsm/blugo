@@ -26,27 +26,28 @@ var spanishTranslations = Translations{
 	// Adapter
 	AdapterPoweringOn:        "Encendiendo adaptador Bluetooth...",
 	AdapterPoweringOff:       "Apagando adaptador Bluetooth...",
-	AdapterPoweredOn:         "✓ Adaptador Bluetooth encendido",
-	AdapterPoweredOff:        "✓ Adaptador Bluetooth apagado",
+	AdapterPoweredOn:         "Adaptador Bluetooth encendido",
+	AdapterPoweredOff:        "Adaptador Bluetooth apagado",
 	DiscoverableActivating:   "Activando modo discoverable...",
 	DiscoverableDeactivating: "Desactivando modo discoverable...",
-	DiscoverableOn:           "✓ Modo discoverable activado",
-	DiscoverableOff:          "✓ Modo discoverable desactivado",
+	DiscoverableOn:           "Modo discoverable activado",
+	DiscoverableOff:          "Modo discoverable desactivado",
 	PairableActivating:       "Activando modo pairable...",
 	PairableDeactivating:     "Desactivando modo pairable...",
-	PairableOn:               "✓ Modo pairable activado",
-	PairableOff:              "✓ Modo pairable desactivado",
+	PairableOn:               "Modo pairable activado",
+	PairableOff:              "Modo pairable desactivado",
 
 	// Status messages
 	ScanEnabled:        "Escaneo activado",
 	ScanPaused:         "Escaneo pausado",
-	Connected:          "✓ Conectado a %s",
-	Disconnected:       "✓ Desconectado de %s",
-	DisconnectedPaired: "✓ Desconectado de %s (aún pareado)",
-	Forgotten:          "✓ Dispositivo olvidado",
+	Connected:          "Conectado a %s",
+	Disconnected:       "Desconectado de %s",
+	DisconnectedPaired: "Desconectado de %s (aún pareado)",
+	Forgotten:          "Dispositivo olvidado",
 
 	// Errors
-	Error: "Error",
+	Error:           "Error",
+	ErrorScanToggle: "Error al cambiar escaneo: %s",
 
 	// Pairing
 	PairingCode:        "CÓDIGO DE PAIRING: %06d",

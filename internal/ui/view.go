@@ -17,7 +17,7 @@ func (m Model) View() string {
 	}
 
 	// Calcular ancho efectivo con límite máximo para terminales muy grandes
-	maxWidth := min(m.width, 140)
+	maxWidth := min(m.width, GetMaxWidth())
 	leftPadding := (m.width - maxWidth) / 2
 
 	// Layout principal
@@ -54,7 +54,7 @@ func (m Model) View() string {
 	content := lipgloss.JoinVertical(lipgloss.Left, sections...)
 
 	// Centrar contenido en terminales muy grandes
-	if m.width > 140 {
+	if m.width > GetMaxWidth() {
 		return lipgloss.NewStyle().
 			PaddingLeft(leftPadding).
 			Render(content)
@@ -65,7 +65,11 @@ func (m Model) View() string {
 
 // renderErrorView renderiza la vista de error.
 func (m Model) renderErrorView() string {
-	title := ErrorStyle.Render("\n❌ " + i18n.T.Error)
+	errorText := i18n.T.Error
+	if Emoji(EmojiError) != "" {
+		errorText = Emoji(EmojiError) + " " + errorText
+	}
+	title := ErrorStyle.Render("\n" + errorText)
 	message := m.err.Error()
 	help := HelpStyle.Render("\n" + i18n.T.HelpGeneral + "\n")
 
@@ -74,7 +78,11 @@ func (m Model) renderErrorView() string {
 
 // renderLoadingView renderiza la vista de carga.
 func (m Model) renderLoadingView() string {
-	return TitleStyle.Render("⚙ " + i18n.T.Initializing) + "\n"
+	loadingText := i18n.T.Initializing
+	if Emoji(EmojiLoading) != "" {
+		loadingText = Emoji(EmojiLoading) + " " + loadingText
+	}
+	return TitleStyle.Render(loadingText) + "\n"
 }
 
 // renderSingleColumnLayout renderiza el layout de una columna.
@@ -123,7 +131,7 @@ func (m Model) renderFoundDevicesSection() string {
 	sections := []string{}
 
 	// Header
-	header := renderSectionHeader("📡", i18n.T.AvailableDevices, len(foundDevices), isFocused)
+	header := renderSectionHeader(Emoji(EmojiAvailable), i18n.T.AvailableDevices, len(foundDevices), isFocused)
 	sections = append(sections, header)
 	sections = append(sections, m.renderSeparator())
 
@@ -139,7 +147,7 @@ func (m Model) renderFoundDevicesSection() string {
 	content := lipgloss.JoinVertical(lipgloss.Left, sections...)
 
 	// Usar ancho efectivo consistente con otros componentes
-	effectiveWidth := min(m.width, 140)
+	effectiveWidth := min(m.width, GetMaxWidth())
 
 	if isFocused {
 		return FocusedPanelStyle.Width(effectiveWidth - 4).Render(content)
@@ -155,7 +163,7 @@ func (m Model) renderConnectedDevicesSection() string {
 	sections := []string{}
 
 	// Header
-	header := renderSectionHeader("🔗", i18n.T.ConnectedDevices, len(connectedDevices), isFocused)
+	header := renderSectionHeader(Emoji(EmojiConnected), i18n.T.ConnectedDevices, len(connectedDevices), isFocused)
 	sections = append(sections, header)
 	sections = append(sections, m.renderSeparator())
 
@@ -171,7 +179,7 @@ func (m Model) renderConnectedDevicesSection() string {
 	content := lipgloss.JoinVertical(lipgloss.Left, sections...)
 
 	// Usar ancho efectivo consistente con otros componentes
-	effectiveWidth := min(m.width, 140)
+	effectiveWidth := min(m.width, GetMaxWidth())
 
 	if isFocused {
 		return FocusedPanelStyle.Width(effectiveWidth - 4).Render(content)

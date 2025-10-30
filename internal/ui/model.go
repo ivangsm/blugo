@@ -6,6 +6,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/ivangsm/blugo/internal/agent"
 	"github.com/ivangsm/blugo/internal/bluetooth"
+	"github.com/ivangsm/blugo/internal/config"
 	"github.com/ivangsm/blugo/internal/models"
 )
 
@@ -47,8 +48,27 @@ func (m Model) Init() tea.Cmd {
 // GetFoundDevices devuelve los dispositivos disponibles (no conectados).
 func (m Model) GetFoundDevices() []*models.Device {
 	devices := make([]*models.Device, 0)
+
+	// Get config values
+	hideUnnamed := false
+	minRSSI := -100
+	if config.Global != nil {
+		hideUnnamed = config.Global.HideUnnamedDevices
+		minRSSI = config.Global.MinRSSIThreshold
+	}
+
 	for _, dev := range m.devices {
 		if !dev.Connected {
+			// Filter unnamed devices if configured
+			if hideUnnamed && dev.Name == "" && dev.Alias == "" {
+				continue
+			}
+
+			// Filter by RSSI threshold if configured
+			if dev.RSSI != 0 && dev.RSSI < int16(minRSSI) {
+				continue
+			}
+
 			devices = append(devices, dev)
 		}
 	}

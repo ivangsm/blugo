@@ -8,6 +8,8 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/ivangsm/blugo/internal/agent"
 	"github.com/ivangsm/blugo/internal/bluetooth"
+	"github.com/ivangsm/blugo/internal/config"
+	"github.com/ivangsm/blugo/internal/i18n"
 	"github.com/ivangsm/blugo/internal/models"
 )
 
@@ -28,13 +30,22 @@ func InitializeCmd(program *tea.Program) tea.Cmd {
 			fmt.Fprintf(os.Stderr, "   La app funcionará pero algunos dispositivos pueden requerir pairing manual.\n")
 		}
 
-		// Iniciar descubrimiento
-		err = manager.StartDiscovery()
-		if err != nil {
-			return InitMsg{Err: fmt.Errorf("no se pudo iniciar descubrimiento: %w", err)}
+		// Iniciar descubrimiento (if enabled in config)
+		autoStart := true // Default
+		if config.Global != nil {
+			autoStart = config.Global.AutoStartScanning
 		}
 
-		return InitMsg{Manager: manager, Agent: btAgent}
+		scanningStarted := false
+		if autoStart {
+			err = manager.StartDiscovery()
+			if err != nil {
+				return InitMsg{Err: fmt.Errorf("no se pudo iniciar descubrimiento: %w", err)}
+			}
+			scanningStarted = true
+		}
+
+		return InitMsg{Manager: manager, Agent: btAgent, Scanning: scanningStarted}
 	}
 }
 
@@ -49,7 +60,7 @@ func toggleScanningCmd(manager *bluetooth.Manager, currentlyScanning bool) tea.C
 		}
 
 		if err != nil {
-			return StatusMsg{Message: fmt.Sprintf("Error al cambiar escaneo: %s", err), IsError: true}
+			return StatusMsg{Message: fmt.Sprintf(i18n.T.ErrorScanToggle, err), IsError: true}
 		}
 
 		return ScanningMsg{Scanning: !currentlyScanning}
@@ -77,11 +88,17 @@ func connectToDeviceCmd(manager *bluetooth.Manager, dev *models.Device) tea.Cmd 
 				return ConnectResultMsg{Address: dev.Address, Success: false, Err: fmt.Errorf("error al parear: %w", err)}
 			}
 
-			// Confiar en el dispositivo
-			_ = manager.TrustDevice(dev.Path)
+			// Confiar en el dispositivo (if enabled in config)
+			if config.Global != nil && config.Global.AutoTrustOnPair {
+				_ = manager.TrustDevice(dev.Path)
+			}
 
-			// Esperar un momento después del pairing
-			time.Sleep(1 * time.Second)
+			// Esperar un momento después del pairing (configurable)
+			delay := 1000 // Default 1 second
+			if config.Global != nil {
+				delay = config.Global.PairingDelay
+			}
+			time.Sleep(time.Duration(delay) * time.Millisecond)
 		}
 
 		// Conectar
@@ -111,7 +128,12 @@ func forgetDeviceCmd(manager *bluetooth.Manager, dev *models.Device) tea.Cmd {
 		// Desconectar primero si está conectado
 		if dev.Connected {
 			_ = manager.DisconnectDevice(dev.Path)
-			time.Sleep(500 * time.Millisecond)
+			// Wait before removing (configurable)
+			delay := 500 // Default 500ms
+			if config.Global != nil {
+				delay = config.Global.DisconnectDelay
+			}
+			time.Sleep(time.Duration(delay) * time.Millisecond)
 		}
 
 		// Eliminar el dispositivo
@@ -138,7 +160,17 @@ func waitForPasskeyCmd(agent *agent.Agent) tea.Cmd {
 
 // tickCmd genera un tick periódico.
 func tickCmd() tea.Cmd {
-	return tea.Tick(2*time.Second, func(t time.Time) tea.Msg {
+	interval := 2 // Default fallback
+	if config.Global != nil {
+		interval = config.Global.RefreshInterval
+		// Validate range
+		if interval < 1 {
+			interval = 1
+		} else if interval > 10 {
+			interval = 10
+		}
+	}
+	return tea.Tick(time.Duration(interval)*time.Second, func(t time.Time) tea.Msg {
 		return TickMsg(t)
 	})
 }

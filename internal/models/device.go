@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/godbus/dbus/v5"
+	"github.com/ivangsm/blugo/internal/config"
 )
 
 // Device representa un dispositivo Bluetooth.
@@ -21,6 +22,14 @@ type Device struct {
 	Class     uint32
 	Battery   *uint8 // Nivel de batería (0-100), nil si no disponible
 	LastSeen  time.Time
+}
+
+// emoji returns the emoji if ShowEmojis is enabled, otherwise empty string
+func emoji(e string) string {
+	if config.Global != nil && config.Global.ShowEmojis {
+		return e
+	}
+	return ""
 }
 
 // GetDisplayName devuelve el nombre a mostrar del dispositivo.
@@ -46,21 +55,21 @@ func (d *Device) GetIcon() string {
 	if d.Icon != "" {
 		switch d.Icon {
 		case "audio-card", "audio-headset", "audio-headphones":
-			return "🎧"
+			return emoji("🎧")
 		case "phone", "smartphone":
-			return "📱"
+			return emoji("📱")
 		case "computer", "laptop":
-			return "💻"
+			return emoji("💻")
 		case "input-keyboard":
-			return "⌨️"
+			return emoji("⌨️")
 		case "input-mouse":
-			return "🖱️"
+			return emoji("🖱️")
 		case "input-gaming":
-			return "🎮"
+			return emoji("🎮")
 		case "camera":
-			return "📷"
+			return emoji("📷")
 		case "printer":
-			return "🖨️"
+			return emoji("🖨️")
 		}
 	}
 
@@ -68,18 +77,18 @@ func (d *Device) GetIcon() string {
 	majorClass := (d.Class >> 8) & 0x1F
 	switch majorClass {
 	case 1: // Computer
-		return "💻"
+		return emoji("💻")
 	case 2: // Phone
-		return "📱"
+		return emoji("📱")
 	case 4: // Audio/Video
-		return "🎧"
+		return emoji("🎧")
 	case 5: // Peripheral (keyboard, mouse, etc)
-		return "⌨️"
+		return emoji("⌨️")
 	case 6: // Imaging (printer, camera)
-		return "📷"
+		return emoji("📷")
 	}
 
-	return "📶"
+	return emoji("📶")
 }
 
 // GetBatteryInfo devuelve el icono y texto de la batería.
@@ -94,15 +103,15 @@ func (d *Device) GetBatteryInfo() (icon string, text string) {
 	// Elegir icono según el nivel
 	switch {
 	case level >= 90:
-		icon = "🔋" // Batería llena
+		icon = emoji("🔋") // Batería llena
 	case level >= 60:
-		icon = "🔋" // Batería alta
+		icon = emoji("🔋") // Batería alta
 	case level >= 30:
-		icon = "🔋" // Batería media
+		icon = emoji("🔋") // Batería media
 	case level >= 15:
-		icon = "🪫" // Batería baja
+		icon = emoji("🪫") // Batería baja
 	default:
-		icon = "🪫" // Batería muy baja/crítica
+		icon = emoji("🪫") // Batería muy baja/crítica
 	}
 
 	// Formato del texto
