@@ -3,14 +3,14 @@ package i18n
 // englishTranslations contains all English translations
 var englishTranslations = Translations{
 	// App
-	AppTitle:     "🔵 GOB - Bluetooth Manager",
-	Scanning:     "🔍 Scanning",
-	Paused:       "⏸ Paused",
-	Initializing: "⚙ Initializing Bluetooth...",
+	AppTitle:     "GOB - Bluetooth Manager",
+	Scanning:     "Scanning",
+	Paused:       "Paused",
+	Initializing: "Initializing Bluetooth...",
 
 	// Sections
-	AvailableDevices: "📡 AVAILABLE DEVICES",
-	ConnectedDevices: "🔗 CONNECTED DEVICES",
+	AvailableDevices: "AVAILABLE DEVICES",
+	ConnectedDevices: "CONNECTED DEVICES",
 	AdapterInfo:      "Bluetooth Adapter",
 
 	// Device info
@@ -46,20 +46,20 @@ var englishTranslations = Translations{
 	Forgotten:          "✓ Device forgotten",
 
 	// Errors
-	Error: "❌ Error",
+	Error: "Error",
 
 	// Pairing
-	PairingCode:        "🔑 PAIRING CODE: %06d",
-	PairingInstruction: "⌨️  Type this code on your keyboard and press Enter",
+	PairingCode:        "PAIRING CODE: %06d",
+	PairingInstruction: "Type this code on your keyboard and press Enter",
 	PairingConfirm:     "Then press Enter here to confirm, or Esc/N to cancel",
 	PairingCancelled:   "Pairing cancelled",
 
 	// Help
-	HelpNavigation:     "↑/↓: navigate | Tab: switch | Enter: connect | D/X: forget",
-	HelpActions:        "↑/↓: navigate | Tab: switch | Enter: disconnect | D/X: forget",
-	HelpAdapterControl: "S: scan | P: power | V: discoverable | B: pairable | L: language | R: refresh | Q: quit",
-	HelpGeneral:        "Q: quit",
-	HelpPairing:        "Enter: confirm | N/Esc: cancel | Q: quit",
+	HelpNavigation:     "↑/↓: navigate | tab: switch | enter: connect | d/x: forget",
+	HelpActions:        "↑/↓: navigate | tab: switch | enter: disconnect | d/x: forget",
+	HelpAdapterControl: "s: scan | p: power | v: discoverable | b: pairable | l: language | r: refresh | q: quit",
+	HelpGeneral:        "q: quit",
+	HelpPairing:        "enter: confirm | n/esc: cancel | q: quit",
 
 	// Adapter table
 	AdapterName:         "Name",

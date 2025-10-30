@@ -3,14 +3,14 @@ package i18n
 // spanishTranslations contains all Spanish translations
 var spanishTranslations = Translations{
 	// App
-	AppTitle:     "🔵 GOB - Gestor Bluetooth",
-	Scanning:     "🔍 Escaneando",
-	Paused:       "⏸ Pausado",
-	Initializing: "⚙ Inicializando Bluetooth...",
+	AppTitle:     "GOB - Gestor Bluetooth",
+	Scanning:     "Escaneando",
+	Paused:       "Pausado",
+	Initializing: "Inicializando Bluetooth...",
 
 	// Sections
-	AvailableDevices: "📡 DISPOSITIVOS DISPONIBLES",
-	ConnectedDevices: "🔗 DISPOSITIVOS CONECTADOS",
+	AvailableDevices: "DISPOSITIVOS DISPONIBLES",
+	ConnectedDevices: "DISPOSITIVOS CONECTADOS",
 	AdapterInfo:      "Adaptador Bluetooth",
 
 	// Device info
@@ -46,20 +46,20 @@ var spanishTranslations = Translations{
 	Forgotten:          "✓ Dispositivo olvidado",
 
 	// Errors
-	Error: "❌ Error",
+	Error: "Error",
 
 	// Pairing
-	PairingCode:        "🔑 CÓDIGO DE PAIRING: %06d",
-	PairingInstruction: "⌨️  Escribe este código en tu teclado y presiona Enter",
+	PairingCode:        "CÓDIGO DE PAIRING: %06d",
+	PairingInstruction: "Escribe este código en tu teclado y presiona Enter",
 	PairingConfirm:     "Luego presiona Enter aquí para confirmar, o Esc/N para cancelar",
 	PairingCancelled:   "Pairing cancelado",
 
 	// Help
-	HelpNavigation:     "↑/↓: navegar | Tab: cambiar | Enter: conectar | D/X: olvidar",
-	HelpActions:        "↑/↓: navegar | Tab: cambiar | Enter: desconectar | D/X: olvidar",
-	HelpAdapterControl: "S: escaneo | P: powered | V: discoverable | B: pairable | L: idioma | R: refrescar | Q: salir",
-	HelpGeneral:        "Q: salir",
-	HelpPairing:        "Enter: confirmar | N/Esc: cancelar | Q: salir",
+	HelpNavigation:     "↑/↓: navegar | tab: cambiar | enter: conectar | d/x: olvidar",
+	HelpActions:        "↑/↓: navegar | tab: cambiar | enter: desconectar | d/x: olvidar",
+	HelpAdapterControl: "s: escaneo | p: encendido | v: descubrible | b: pairable | l: idioma | r: refrescar | q: salir",
+	HelpGeneral:        "q: salir",
+	HelpPairing:        "enter: confirmar | n/esc: cancelar | q: salir",
 
 	// Adapter table
 	AdapterName:         "Nombre",

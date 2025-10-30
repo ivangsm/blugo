@@ -11,13 +11,13 @@ import (
 
 // renderHeader renderiza el encabezado de la aplicación.
 func (m Model) renderHeader() string {
-	title := TitleStyle.Render(i18n.T.AppTitle)
+	title := TitleStyle.Render("🔵 " + i18n.T.AppTitle)
 
 	scanStatus := ""
 	if m.scanning {
-		scanStatus = ScanningBadgeStyle.Render(i18n.T.Scanning)
+		scanStatus = ScanningBadgeStyle.Render("🔍 " + i18n.T.Scanning)
 	} else {
-		scanStatus = MutedStyle.Render(i18n.T.Paused)
+		scanStatus = MutedStyle.Render("⏸ " + i18n.T.Paused)
 	}
 
 	// Usar ancho efectivo
@@ -91,8 +91,8 @@ func (m Model) renderStatusBar() string {
 
 // renderPasskeyPrompt renderiza el prompt de passkey.
 func (m Model) renderPasskeyPrompt() string {
-	passkeyText := fmt.Sprintf(i18n.T.PairingCode, *m.pairingPasskey)
-	instruction := WarningStyle.Render(i18n.T.PairingInstruction)
+	passkeyText := fmt.Sprintf("🔑 "+i18n.T.PairingCode, *m.pairingPasskey)
+	instruction := WarningStyle.Render("⌨️  " + i18n.T.PairingInstruction)
 	confirm := HelpStyle.Render(i18n.T.PairingConfirm)
 
 	content := lipgloss.JoinVertical(
@@ -229,67 +229,96 @@ func (m Model) renderAdapterTable() string {
 		return BoxStyle.Render(MutedStyle.Render("Loading adapter information..."))
 	}
 
-	// Crear estilos para la tabla
-	headerCellStyle := lipgloss.NewStyle().
+	// Definir anchos de columna consistentes
+	const (
+		labelWidth = 14
+		valueWidth = 18
+	)
+
+	// Estilo para labels (izquierda)
+	labelStyle := lipgloss.NewStyle().
 		Bold(true).
 		Foreground(secondaryColor).
-		Width(15).
+		Width(labelWidth).
 		Align(lipgloss.Left)
 
-	valueCellStyle := lipgloss.NewStyle().
-		Width(20).
+	// Estilo para valores (izquierda)
+	valueStyle := lipgloss.NewStyle().
+		Width(valueWidth).
 		Align(lipgloss.Left)
 
-	// Headers
-	headers := []string{
-		headerCellStyle.Render(i18n.T.AdapterName),
-		headerCellStyle.Render(i18n.T.AdapterAlias),
-		headerCellStyle.Render(i18n.T.AdapterPower),
-		headerCellStyle.Render(i18n.T.AdapterPairable),
-		headerCellStyle.Render(i18n.T.AdapterDiscoverable),
-	}
+	// Crear cada fila de la tabla: label | value
+	rows := []string{}
 
-	// Values
-	nameVal := valueCellStyle.Render(m.adapter.Name)
-	aliasVal := valueCellStyle.Render(m.adapter.Alias)
+	// Row 1: Name
+	nameRow := lipgloss.JoinHorizontal(
+		lipgloss.Top,
+		labelStyle.Render(i18n.T.AdapterName+":"),
+		valueStyle.Render(m.adapter.Name),
+	)
+	rows = append(rows, nameRow)
 
-	// Power con color
-	var powerVal string
+	// Row 2: Alias
+	aliasRow := lipgloss.JoinHorizontal(
+		lipgloss.Top,
+		labelStyle.Render(i18n.T.AdapterAlias+":"),
+		valueStyle.Render(m.adapter.Alias),
+	)
+	rows = append(rows, aliasRow)
+
+	// Row 3: Power (con color)
+	var powerText string
 	if m.adapter.Powered {
-		powerVal = valueCellStyle.Render(SuccessStyle.Render(i18n.T.StatusOn))
+		powerText = SuccessStyle.Render(i18n.T.StatusOn)
 	} else {
-		powerVal = valueCellStyle.Render(ErrorStyle.Render(i18n.T.StatusOff))
+		powerText = ErrorStyle.Render(i18n.T.StatusOff)
 	}
+	powerRow := lipgloss.JoinHorizontal(
+		lipgloss.Top,
+		labelStyle.Render(i18n.T.AdapterPower+":"),
+		valueStyle.Render(powerText),
+	)
+	rows = append(rows, powerRow)
 
-	// Pairable con color
-	var pairableVal string
+	// Row 4: Pairable (con color)
+	var pairableText string
 	if m.adapter.Pairable {
-		pairableVal = valueCellStyle.Render(SuccessStyle.Render(i18n.T.StatusOn))
+		pairableText = SuccessStyle.Render(i18n.T.StatusOn)
 	} else {
-		pairableVal = valueCellStyle.Render(MutedStyle.Render(i18n.T.StatusOff))
+		pairableText = MutedStyle.Render(i18n.T.StatusOff)
 	}
+	pairableRow := lipgloss.JoinHorizontal(
+		lipgloss.Top,
+		labelStyle.Render(i18n.T.AdapterPairable+":"),
+		valueStyle.Render(pairableText),
+	)
+	rows = append(rows, pairableRow)
 
-	// Discoverable con color
-	var discoverableVal string
+	// Row 5: Discoverable (con color)
+	var discoverableText string
 	if m.adapter.Discoverable {
-		discoverableVal = valueCellStyle.Render(SuccessStyle.Render(i18n.T.StatusOn))
+		discoverableText = SuccessStyle.Render(i18n.T.StatusOn)
 	} else {
-		discoverableVal = valueCellStyle.Render(MutedStyle.Render(i18n.T.StatusOff))
+		discoverableText = MutedStyle.Render(i18n.T.StatusOff)
 	}
+	discoverableRow := lipgloss.JoinHorizontal(
+		lipgloss.Top,
+		labelStyle.Render(i18n.T.AdapterDiscoverable+":"),
+		valueStyle.Render(discoverableText),
+	)
+	rows = append(rows, discoverableRow)
 
-	values := []string{nameVal, aliasVal, powerVal, pairableVal, discoverableVal}
+	// Unir todas las filas verticalmente
+	tableContent := lipgloss.JoinVertical(lipgloss.Left, rows...)
 
-	// Crear filas
-	headerRow := lipgloss.JoinHorizontal(lipgloss.Top, headers...)
-	valueRow := lipgloss.JoinHorizontal(lipgloss.Top, values...)
-	separator := SeparatorStyle.Render(strings.Repeat("─", lipgloss.Width(headerRow)))
+	// Header de la tabla
+	separator := SeparatorStyle.Render(strings.Repeat("─", labelWidth+valueWidth))
 
 	table := lipgloss.JoinVertical(
 		lipgloss.Left,
 		HeaderStyle.Render(fmt.Sprintf("%s %s", m.adapter.GetStatusIcon(), i18n.T.AdapterInfo)),
 		separator,
-		headerRow,
-		valueRow,
+		tableContent,
 	)
 
 	// Usar ancho efectivo

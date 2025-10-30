@@ -65,7 +65,7 @@ func (m Model) View() string {
 
 // renderErrorView renderiza la vista de error.
 func (m Model) renderErrorView() string {
-	title := ErrorStyle.Render("\n" + i18n.T.Error)
+	title := ErrorStyle.Render("\n❌ " + i18n.T.Error)
 	message := m.err.Error()
 	help := HelpStyle.Render("\n" + i18n.T.HelpGeneral + "\n")
 
@@ -74,7 +74,7 @@ func (m Model) renderErrorView() string {
 
 // renderLoadingView renderiza la vista de carga.
 func (m Model) renderLoadingView() string {
-	return TitleStyle.Render(i18n.T.Initializing) + "\n"
+	return TitleStyle.Render("⚙ " + i18n.T.Initializing) + "\n"
 }
 
 // renderSingleColumnLayout renderiza el layout de una columna.
