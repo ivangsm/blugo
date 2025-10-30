@@ -1,41 +1,90 @@
-# GOB - Gestor de Bluetooth para Linux
+# GOB - Bluetooth Manager for Linux
 
-Gestor de Bluetooth minimalista con interfaz de terminal (TUI) para Linux, construido con Go y BlueZ.
+> A minimalist Bluetooth manager with a modern Terminal User Interface (TUI) for Linux, built with Go and BlueZ.
 
-## Descripción
+[![Go Version](https://img.shields.io/badge/Go-1.23+-00ADD8?style=flat&logo=go)](https://golang.org)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![BlueZ](https://img.shields.io/badge/BlueZ-5.0+-blue.svg)](http://www.bluez.org/)
 
-GOB es una aplicación de terminal interactiva que permite gestionar dispositivos Bluetooth de manera simple y eficiente. Utiliza el stack BlueZ a través de DBus para comunicarse con el adaptador Bluetooth del sistema, proporcionando una interfaz limpia y fácil de usar.
+[Español](README.es.md) | English
 
-## Características Actuales
+---
 
-- **Escaneo de dispositivos**: Búsqueda automática de dispositivos Bluetooth cercanos
-- **Pairing automático**: Emparejamiento de dispositivos con soporte para autenticación por passkey
-- **Gestión de conexiones**: Conectar y desconectar dispositivos de forma sencilla
-- **Información detallada**: Muestra nombre, dirección MAC, intensidad de señal (RSSI) y tipo de dispositivo
-- **Indicador de batería**: Visualización del nivel de batería de dispositivos compatibles con colores dinámicos
-- **Interfaz moderna y responsiva**:
-  - Layout adaptable que cambia entre una y dos columnas según el ancho de la terminal
-  - Diseño con bordes redondeados, badges y separadores elegantes
-  - Paneles con resaltado visual para la sección activa
-  - Componentes reutilizables y modulares
-- **Iconos y badges**: Identificación visual de dispositivos y estados (pareado, conectado, confiable)
-- **Control de escaneo**: Pausar y reanudar el escaneo con indicador visual en tiempo real
-- **Olvidar dispositivos**: Eliminar dispositivos pareados del sistema
-- **Control del adaptador Bluetooth**:
-  - Ver información detallada del adaptador (nombre, dirección, estado)
-  - Encender/apagar el adaptador Bluetooth (tecla `P`)
-  - Activar/desactivar modo Discoverable (tecla `V`) - Hacer el adaptador visible para otros dispositivos
-  - Activar/desactivar modo Pairable (tecla `B`) - Permitir emparejamiento con nuevos dispositivos
-  - Panel de información con tecla `I`
+## Features
 
-## Requisitos
+### Device Management
+- **Automatic scanning** of nearby Bluetooth devices
+- **Automatic pairing** with passkey authentication support
+- **Connect/disconnect** devices easily
+- **Forget devices** to remove pairing from system
+- **Detailed information**: name, MAC address, signal strength (RSSI), and device type
+- **Battery indicator** with dynamic colors for compatible devices
 
-- Linux con BlueZ instalado
-- Go 1.23 o superior
-- Adaptador Bluetooth compatible
-- Acceso a DBus del sistema
+### Adapter Control
+- **Power control**: Turn Bluetooth adapter on/off (key `P`)
+- **Discoverable mode**: Make adapter visible to other devices (key `V`)
+- **Pairable mode**: Allow pairing with new devices (key `B`)
+- **Adapter information**: View detailed adapter status and configuration
 
-### Instalación de BlueZ
+### Modern Interface
+- **Responsive design**: Adapts to any terminal size
+- **Clean layout**: Single-column design with proper spacing
+- **Visual feedback**: Icons, badges, and color-coded status
+- **Real-time updates**: Automatic refresh every 2 seconds
+- **Scan control**: Pause/resume scanning with visual indicator
+- **Alt-screen mode**: Clean terminal on exit and resize
+
+---
+
+## Screenshots
+
+```
+╭────────────────────────────────────────────────────────────────╮
+│ 🔵 GOB - Bluetooth Manager              🔍 Scanning           │
+╰────────────────────────────────────────────────────────────────╯
+
+╭────────────────────────────────────────────────────────────────╮
+│ ⚡ Bluetooth Adapter                                            │
+│ ────────────────────────────────────────────────────────────   │
+│ Name            Alias           Power    Pairable  Discoverable│
+│ bluez-5.0       My Laptop       ON       OFF       OFF         │
+╰────────────────────────────────────────────────────────────────╯
+
+╭────────────────────────────────────────────────────────────────╮
+│                                                                │
+│ 📡 AVAILABLE DEVICES (2) ◀                                     │
+│ ────────────────────────────────────────────────────────────   │
+│                                                                │
+│ ▶ 🎧 Sony WH-1000XM4 (AA:BB:CC:DD:EE:FF) | -45 dBm | 🔋 85%   │
+│   ⌨️  Keychron K3 (11:22:33:44:55:66) | -38 dBm PAIRED         │
+│                                                                │
+╰────────────────────────────────────────────────────────────────╯
+
+╭────────────────────────────────────────────────────────────────╮
+│                                                                │
+│ 🔗 CONNECTED DEVICES (1)                                       │
+│ ────────────────────────────────────────────────────────────   │
+│                                                                │
+│   🖱️  Logitech MX Master 3 (FF:EE:DD:CC:BB:AA) | 🪫 12%       │
+│                                                                │
+╰────────────────────────────────────────────────────────────────╯
+
+╭────────────────────────────────────────────────────────────────╮
+│ ↑/↓: navigate | Tab: switch | Enter: connect | D/X: forget    │
+│ S: scan | P: power | V: discoverable | B: pairable | Q: quit  │
+╰────────────────────────────────────────────────────────────────╯
+```
+
+---
+
+## Requirements
+
+- **Linux** with BlueZ installed
+- **Go 1.23** or higher
+- **Bluetooth adapter** compatible with BlueZ
+- **DBus** system access
+
+### Installing BlueZ
 
 **Arch Linux / Manjaro:**
 ```bash
@@ -58,192 +107,221 @@ sudo systemctl enable bluetooth
 sudo systemctl start bluetooth
 ```
 
-## Instalación
+---
 
-### Opción 1: Usando Make (Recomendado)
+## Installation
+
+### Option 1: Using Make (Recommended)
 
 ```bash
-# Clonar el repositorio
+# Clone the repository
 git clone https://github.com/ivangsm/gob.git
 cd gob
 
-# Compilar
+# Build
 make build
 
-# (Opcional) Instalar en el sistema
+# (Optional) Install system-wide
 make install
 ```
 
-### Opción 2: Manualmente con Go
+### Option 2: Manual with Go
 
 ```bash
-# Clonar el repositorio
+# Clone the repository
 git clone https://github.com/ivangsm/gob.git
 cd gob
 
-# Descargar dependencias
+# Download dependencies
 go mod download
 
-# Compilar desde cmd/gob
+# Build from cmd/gob
 go build -o gob ./cmd/gob
 
-# (Opcional) Instalar en el sistema
+# (Optional) Install system-wide
 sudo mv gob /usr/local/bin/
 ```
 
-## Uso
+---
 
-Simplemente ejecuta el binario:
+## Usage
+
+Simply run the binary:
 ```bash
 ./gob
 ```
 
-O si lo instalaste en el sistema:
+Or if installed system-wide:
 ```bash
 gob
 ```
 
-### Controles
+### Keyboard Controls
 
-**Navegación:**
-- `↑/↓` o `k/j`: Navegar entre dispositivos
-- `Tab`: Cambiar entre secciones (disponibles/conectados)
-- `r`: Refrescar lista de dispositivos manualmente
+**Navigation:**
+- `↑/↓` or `k/j`: Navigate between devices
+- `Tab`: Switch between sections (available/connected)
+- `r`: Manually refresh device list
 
-**Acciones de dispositivos:**
-- `Enter`: Conectar a un dispositivo disponible / Desconectar un dispositivo conectado
-- `d` o `x`: Olvidar dispositivo (desconectar y eliminar pairing)
-- `s`: Pausar/reanudar escaneo de dispositivos
+**Device Actions:**
+- `Enter`: Connect to available device / Disconnect from connected device
+- `d` or `x`: Forget device (disconnect and remove pairing)
+- `s`: Pause/resume device scanning
 
-**Control del adaptador:**
-- `i`: Mostrar/ocultar información del adaptador
-- `p`: Encender/apagar el adaptador Bluetooth
-- `v`: Activar/desactivar modo Discoverable
-- `b`: Activar/desactivar modo Pairable
+**Adapter Control:**
+- `p`: Turn Bluetooth adapter on/off
+- `v`: Toggle Discoverable mode
+- `b`: Toggle Pairable mode
 
 **General:**
-- `q` o `Ctrl+C`: Salir de la aplicación
+- `q` or `Ctrl+C`: Exit application
 
-**Durante el pairing:**
-- `Enter` o `y`: Confirmar código de pairing
-- `n` o `Esc`: Cancelar pairing
+**During Pairing:**
+- `Enter` or `y`: Confirm pairing code
+- `n` or `Esc`: Cancel pairing
+
+---
+
+## Architecture
+
+GOB follows SOLID principles and clean architecture patterns:
+
+### Project Structure
+
+```
+gob/
+├── cmd/gob/              # Application entry point
+├── internal/
+│   ├── models/           # Data models
+│   ├── agent/            # Bluetooth pairing agent
+│   ├── bluetooth/        # Bluetooth/DBus management
+│   └── ui/               # Terminal User Interface
+│       ├── styles.go     # Lipgloss styles
+│       ├── components.go # Reusable UI components
+│       ├── model.go      # Application state
+│       ├── update.go     # Update logic (TEA)
+│       ├── view.go       # Rendering logic (TEA)
+│       ├── messages.go   # Message types
+│       └── commands.go   # Async commands
+├── Makefile
+├── Dockerfile
+├── go.mod
+└── README.md
+```
+
+### Design Principles
+
+- **Separation of Concerns**: Each package has a single, clear responsibility
+- **Single Responsibility**: Each file handles a specific aspect
+- **Dependency Inversion**: High-level modules don't depend on low-level implementation details
+- **The Elm Architecture**: Reactive UI with Model-Update-View pattern
+
+### Technologies
+
+- **[Bubble Tea](https://github.com/charmbracelet/bubbletea)**: TUI framework based on The Elm Architecture
+- **[Lipgloss](https://github.com/charmbracelet/lipgloss)**: Terminal styling library
+- **[godbus](https://github.com/godbus/dbus)**: DBus client for Go
+
+---
+
+## Development
+
+### Available Make Commands
+
+```bash
+make build        # Build the application
+make run          # Build and run
+make install      # Install to /usr/local/bin
+make clean        # Clean build artifacts
+make test         # Run tests
+make fmt          # Format code
+make help         # View all commands
+```
+
+### Adding New Features
+
+**New Bluetooth functionality:**
+1. Add method in `bluetooth/adapter.go` or `bluetooth/device.go`
+2. Create command in `ui/commands.go`
+3. Add handler in `ui/update.go`
+4. Update view in `ui/view.go` if needed
+
+**New UI section:**
+1. Add state to model in `ui/model.go`
+2. Create message in `ui/messages.go`
+3. Implement handler in `ui/update.go`
+4. Create rendering function in `ui/view.go`
+
+---
 
 ## Docker
 
-La aplicación puede ejecutarse en un contenedor Docker, aunque requiere acceso privilegiado al DBus del sistema y al hardware Bluetooth:
+The application can run in a Docker container, though it requires privileged access to DBus and Bluetooth hardware:
 
-**Construir la imagen:**
+**Build the image:**
 ```bash
 docker build -t gob .
 ```
 
-**Ejecutar:**
+**Run:**
 ```bash
 docker run --rm -it --privileged --net=host \
   -v /var/run/dbus:/var/run/dbus \
   gob
 ```
 
-**Nota:** El uso de Docker para esta aplicación es limitado debido a los requisitos de acceso al hardware Bluetooth. Se recomienda la instalación nativa.
+**Note:** Docker usage is limited due to Bluetooth hardware access requirements. Native installation is recommended.
+
+---
 
 ## Roadmap
 
-### Próximas características
+### Current Version
+- ✅ Battery indicator for compatible devices
+- ✅ Complete adapter control (power, discoverable, pairable)
+- ✅ Modern responsive TUI with proper layouts
+- ✅ Color-coded badges and status indicators
+- ✅ Real-time scanning with pause/resume
+- ✅ Clean terminal handling (alt-screen mode)
 
-- [x] **Indicador de batería**: Mostrar el nivel de batería de dispositivos compatibles
-- [x] **Mejoras en la TUI**:
-  - Layout responsivo (1 o 2 columnas según ancho de terminal)
-  - Diseño moderno con bordes y paneles
-  - Badges y estilos de colores mejorados
-  - Componentes UI reutilizables
-  - [ ] Temas de color personalizables
-  - [ ] Animaciones y transiciones suaves
-- [x] **Control del adaptador Bluetooth**:
-  - [x] Encender/apagar el adaptador por completo
-  - [x] Mostrar nombre/alias del adaptador Bluetooth
-  - [x] Ver información del adaptador
-  - [x] Activar/desactivar modo Pairable (emparejamiento)
-  - [x] Activar/desactivar modo Discoverable (detectable)
-  - [ ] Reiniciar el servicio Bluetooth
-  - [ ] Editar alias del adaptador
-  - [ ] Configurar timeouts de visibilidad
+### Planned Features
+- [ ] Support for multiple Bluetooth adapters
+- [ ] Specific Bluetooth profiles (A2DP, HFP, etc.)
+- [ ] Connection history
+- [ ] Persistent configuration
+- [ ] Enhanced logging and debugging
+- [ ] Unit and integration tests
+- [ ] Configuration file support (TOML/YAML)
+- [ ] Customizable color themes
 
-### Futuras mejoras
+---
 
-- [ ] Soporte para múltiples adaptadores Bluetooth
-- [ ] Perfiles Bluetooth específicos (A2DP, HFP, etc.)
-- [ ] Historial de conexiones
-- [ ] Configuración persistente
-- [ ] Logs y debugging mejorado
-- [ ] Tests unitarios e integración
-- [ ] Configuración por archivo TOML/YAML
+## Contributing
 
-## Arquitectura
+Contributions are welcome! Please:
 
-GOB sigue principios SOLID y una arquitectura modular profesional:
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -am 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-### Estructura del Proyecto
+---
 
-```
-gob/
-├── cmd/gob/              # Entry point de la aplicación
-├── internal/
-│   ├── models/           # Modelos de datos
-│   ├── agent/            # Agente de pairing Bluetooth
-│   ├── bluetooth/        # Gestión de Bluetooth/DBus
-│   └── ui/               # Interfaz de usuario TUI
-├── ARCHITECTURE.md       # Documentación detallada de arquitectura
-├── Makefile             # Automatización de tareas
-└── ...
-```
+## License
 
-### Tecnologías
+MIT
 
-- **[Bubble Tea](https://github.com/charmbracelet/bubbletea)**: Framework TUI basado en The Elm Architecture
-- **[Lipgloss](https://github.com/charmbracelet/lipgloss)**: Librería de estilos para terminales
-- **[godbus](https://github.com/godbus/dbus)**: Cliente DBus para Go
+---
 
-### Principios de Diseño
-
-- **Separation of Concerns**: Cada paquete tiene una responsabilidad única
-- **Single Responsibility**: Cada archivo maneja un aspecto específico
-- **Dependency Inversion**: Módulos de alto nivel no dependen de detalles de implementación
-- **The Elm Architecture**: UI reactiva con Model-Update-View
-
-Para más detalles sobre la arquitectura, patrones y mejores prácticas, consulta:
-- [ARCHITECTURE.md](ARCHITECTURE.md) - Arquitectura y patrones de diseño
-- [docs/UI_IMPROVEMENTS.md](docs/UI_IMPROVEMENTS.md) - Mejoras de la interfaz de usuario
-
-### Comandos Make Disponibles
-
-```bash
-make build        # Compilar la aplicación
-make run          # Compilar y ejecutar
-make install      # Instalar en /usr/local/bin
-make clean        # Limpiar archivos compilados
-make test         # Ejecutar tests
-make fmt          # Formatear código
-make help         # Ver todos los comandos
-```
-
-## Contribuir
-
-Las contribuciones son bienvenidas. Por favor:
-1. Fork el repositorio
-2. Crea una rama para tu feature (`git checkout -b feature/nueva-caracteristica`)
-3. Commit tus cambios (`git commit -am 'Agregar nueva característica'`)
-4. Push a la rama (`git push origin feature/nueva-caracteristica`)
-5. Crea un Pull Request
-
-## Licencia
-
-[Especificar licencia]
-
-## Autor
+## Author
 
 Ivan - [@ivangsm](https://github.com/ivangsm)
 
-## Agradecimientos
+---
 
-- Proyecto BlueZ por el stack Bluetooth de Linux
-- Charm.sh por las excelentes herramientas de TUI
+## Acknowledgments
+
+- BlueZ project for the Linux Bluetooth stack
+- Charm.sh for excellent TUI tools
+- The Go community for amazing libraries and support
