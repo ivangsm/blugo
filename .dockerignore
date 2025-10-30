@@ -19,7 +19,7 @@ docs/
 *~
 
 # Build artifacts
-gob
+blugo
 *.exe
 *.dll
 *.so

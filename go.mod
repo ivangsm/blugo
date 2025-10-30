@@ -1,4 +1,4 @@
-module github.com/ivangsm/gob
+module github.com/ivangsm/blugo
 
 go 1.25.3
 

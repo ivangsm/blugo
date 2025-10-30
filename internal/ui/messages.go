@@ -3,9 +3,9 @@ package ui
 import (
 	"time"
 
-	"github.com/ivangsm/gob/internal/agent"
-	"github.com/ivangsm/gob/internal/bluetooth"
-	"github.com/ivangsm/gob/internal/models"
+	"github.com/ivangsm/blugo/internal/agent"
+	"github.com/ivangsm/blugo/internal/bluetooth"
+	"github.com/ivangsm/blugo/internal/models"
 )
 
 // InitMsg indica que la inicialización ha completado.

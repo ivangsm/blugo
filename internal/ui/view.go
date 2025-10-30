@@ -2,8 +2,8 @@ package ui
 
 import (
 	"github.com/charmbracelet/lipgloss"
-	"github.com/ivangsm/gob/internal/i18n"
-	"github.com/ivangsm/gob/internal/models"
+	"github.com/ivangsm/blugo/internal/i18n"
+	"github.com/ivangsm/blugo/internal/models"
 )
 
 // View renderiza la interfaz de usuario.

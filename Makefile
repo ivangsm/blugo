@@ -1,9 +1,9 @@
 .PHONY: build run clean install test fmt vet lint help
 
 # Variables
-BINARY_NAME=gob
+BINARY_NAME=blugo
 INSTALL_PATH=/usr/local/bin
-CMD_PATH=./cmd/gob
+CMD_PATH=./cmd/blugo
 
 # Build the application
 build:
@@ -86,7 +86,7 @@ docker-run:
 
 # Show help
 help:
-	@echo "GOB - Gestor de Bluetooth para Linux"
+	@echo "BLUGO - Bluetooth manager for Linux"
 	@echo ""
 	@echo "Available targets:"
 	@echo "  build        - Build the application"

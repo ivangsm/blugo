@@ -3,7 +3,7 @@ package i18n
 // spanishTranslations contains all Spanish translations
 var spanishTranslations = Translations{
 	// App
-	AppTitle:     "GOB - Gestor Bluetooth",
+	AppTitle:     "BLUGO - Gestor Bluetooth",
 	Scanning:     "Escaneando",
 	Paused:       "Pausado",
 	Initializing: "Inicializando Bluetooth...",

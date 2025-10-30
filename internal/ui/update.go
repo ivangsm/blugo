@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/ivangsm/gob/internal/i18n"
+	"github.com/ivangsm/blugo/internal/i18n"
 )
 
 // Update maneja las actualizaciones del modelo.

@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/godbus/dbus/v5"
-	"github.com/ivangsm/gob/internal/models"
+	"github.com/ivangsm/blugo/internal/models"
 )
 
 const (

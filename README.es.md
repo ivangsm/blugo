@@ -1,4 +1,4 @@
-# GOB - Gestor de Bluetooth para Linux
+# BLUGO - Gestor de Bluetooth para Linux
 
 > Gestor de Bluetooth minimalista con interfaz de terminal (TUI) moderna para Linux, construido con Go y BlueZ.
 
@@ -41,7 +41,7 @@ Español | [English](README.md)
 
 ```
 ╭────────────────────────────────────────────────────────────────╮
-│ 🔵 GOB - Gestor Bluetooth               🔍 Escaneando         │
+│ 🔵 BLUGO - Gestor Bluetooth               🔍 Escaneando         │
 ╰────────────────────────────────────────────────────────────────╯
 
 ╭────────────────────────────────────────────────────────────────╮
@@ -117,7 +117,7 @@ sudo systemctl start bluetooth
 
 ```bash
 # Clonar el repositorio
-git clone https://github.com/ivangsm/gob.git
+git clone https://github.com/ivangsm/blugo.git
 cd gob
 
 # Compilar
@@ -131,14 +131,14 @@ make install
 
 ```bash
 # Clonar el repositorio
-git clone https://github.com/ivangsm/gob.git
+git clone https://github.com/ivangsm/blugo.git
 cd gob
 
 # Descargar dependencias
 go mod download
 
-# Compilar desde cmd/gob
-go build -o gob ./cmd/gob
+# Compilar desde cmd/blugo
+go build -o gob ./cmd/blugo
 
 # (Opcional) Instalar en el sistema
 sudo mv gob /usr/local/bin/
@@ -150,7 +150,7 @@ sudo mv gob /usr/local/bin/
 
 Simplemente ejecuta el binario:
 ```bash
-./gob
+./blugo
 ```
 
 O si lo instalaste en el sistema:
@@ -187,13 +187,13 @@ gob
 
 ## Arquitectura
 
-GOB sigue principios SOLID y patrones de arquitectura limpia:
+BLUGO sigue principios SOLID y patrones de arquitectura limpia:
 
 ### Estructura del Proyecto
 
 ```
-gob/
-├── cmd/gob/              # Entry point de la aplicación
+blugo/
+├── cmd/blugo/              # Entry point de la aplicación
 ├── internal/
 │   ├── models/           # Modelos de datos
 │   ├── agent/            # Agente de pairing Bluetooth

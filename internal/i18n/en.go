@@ -3,7 +3,7 @@ package i18n
 // englishTranslations contains all English translations
 var englishTranslations = Translations{
 	// App
-	AppTitle:     "GOB - Bluetooth Manager",
+	AppTitle:     "BLUGO - Bluetooth Manager",
 	Scanning:     "Scanning",
 	Paused:       "Paused",
 	Initializing: "Initializing Bluetooth...",

@@ -16,8 +16,8 @@ go.work
 go.work.sum
 
 # Compiled binary
-gob
-/gob
+blugo
+/blugo
 
 # IDE specific files
 .vscode/

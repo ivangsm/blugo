@@ -17,7 +17,7 @@ RUN go mod download
 COPY . .
 
 # Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o gob .
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o blugo ./cmd/blugo
 
 # Runtime stage
 FROM alpine:latest
@@ -33,9 +33,9 @@ RUN apk add --no-cache \
 WORKDIR /root/
 
 # Copy the binary from builder
-COPY --from=builder /app/gob .
+COPY --from=builder /app/blugo .
 
 # Run the application
 # Note: This container needs access to host D-Bus and Bluetooth
-# Run with: docker run --rm -it --privileged --net=host -v /var/run/dbus:/var/run/dbus gob
-CMD ["./gob"]
+# Run with: docker run --rm -it --privileged --net=host -v /var/run/dbus:/var/run/dbus blugo
+CMD ["./blugo"]

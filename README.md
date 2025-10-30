@@ -1,4 +1,4 @@
-# GOB - Bluetooth Manager for Linux
+# BLUGO - Bluetooth Manager for Linux
 
 > A minimalist Bluetooth manager with a modern Terminal User Interface (TUI) for Linux, built with Go and BlueZ.
 
@@ -41,7 +41,7 @@
 
 ```
 ╭────────────────────────────────────────────────────────────────╮
-│ 🔵 GOB - Bluetooth Manager              🔍 Scanning           │
+│ 🔵 BLUGO - Bluetooth Manager              🔍 Scanning           │
 ╰────────────────────────────────────────────────────────────────╯
 
 ╭────────────────────────────────────────────────────────────────╮
@@ -116,7 +116,7 @@ sudo systemctl start bluetooth
 
 ```bash
 # Clone the repository
-git clone https://github.com/ivangsm/gob.git
+git clone https://github.com/ivangsm/blugo.git
 cd gob
 
 # Build
@@ -130,14 +130,14 @@ make install
 
 ```bash
 # Clone the repository
-git clone https://github.com/ivangsm/gob.git
+git clone https://github.com/ivangsm/blugo.git
 cd gob
 
 # Download dependencies
 go mod download
 
-# Build from cmd/gob
-go build -o gob ./cmd/gob
+# Build from cmd/blugo
+go build -o gob ./cmd/blugo
 
 # (Optional) Install system-wide
 sudo mv gob /usr/local/bin/
@@ -149,7 +149,7 @@ sudo mv gob /usr/local/bin/
 
 Simply run the binary:
 ```bash
-./gob
+./blugo
 ```
 
 Or if installed system-wide:
@@ -191,8 +191,8 @@ GOB follows SOLID principles and clean architecture patterns:
 ### Project Structure
 
 ```
-gob/
-├── cmd/gob/              # Application entry point
+blugo/
+├── cmd/blugo/              # Application entry point
 ├── internal/
 │   ├── models/           # Data models
 │   ├── agent/            # Bluetooth pairing agent
