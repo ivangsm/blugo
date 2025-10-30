@@ -19,11 +19,14 @@ func (m Model) renderHeader() string {
 		scanStatus = MutedStyle.Render("⏸ Pausado")
 	}
 
+	// Usar ancho efectivo
+	effectiveWidth := min(m.width, 140)
+
 	// Centrar el título y alinear status a la derecha
-	if m.width > 0 {
+	if effectiveWidth > 0 {
 		titleWidth := lipgloss.Width(title)
 		statusWidth := lipgloss.Width(scanStatus)
-		spacing := max(1, m.width-titleWidth-statusWidth-4)
+		spacing := max(1, effectiveWidth-titleWidth-statusWidth-4)
 
 		header := lipgloss.JoinHorizontal(
 			lipgloss.Top,
@@ -32,7 +35,7 @@ func (m Model) renderHeader() string {
 			scanStatus,
 		)
 
-		return HeaderBoxStyle.Width(m.width - 2).Render(header)
+		return HeaderBoxStyle.Width(effectiveWidth - 2).Render(header)
 	}
 
 	return HeaderBoxStyle.Render(lipgloss.JoinHorizontal(lipgloss.Top, title, "  ", scanStatus))
@@ -50,8 +53,11 @@ func (m Model) renderFooter() string {
 		helpText = HelpStyle.Render("↑/↓: navegar | Tab: cambiar | Enter: conectar | D/X: olvidar\nS: escaneo | P: powered | V: discoverable | B: pairable | R: refrescar | Q: salir")
 	}
 
-	if m.width > 0 {
-		return FooterBoxStyle.Width(m.width - 2).Render(helpText)
+	// Usar ancho efectivo
+	effectiveWidth := min(m.width, 140)
+
+	if effectiveWidth > 0 {
+		return FooterBoxStyle.Width(effectiveWidth - 2).Render(helpText)
 	}
 
 	return FooterBoxStyle.Render(helpText)
@@ -72,8 +78,11 @@ func (m Model) renderStatusBar() string {
 		styled = SuccessStyle.Render("✓ " + m.statusMessage)
 	}
 
-	if m.width > 0 {
-		return BoxStyle.Width(m.width - 4).Align(lipgloss.Center).Render(styled)
+	// Usar ancho efectivo
+	effectiveWidth := min(m.width, 140)
+
+	if effectiveWidth > 0 {
+		return BoxStyle.Width(effectiveWidth - 4).Align(lipgloss.Center).Render(styled)
 	}
 
 	return BoxStyle.Render(styled)
@@ -93,8 +102,11 @@ func (m Model) renderPasskeyPrompt() string {
 		confirm,
 	)
 
-	if m.width > 0 {
-		return PasskeyBoxStyle.Width(min(m.width-4, 70)).Render(content)
+	// Usar ancho efectivo
+	effectiveWidth := min(m.width, 140)
+
+	if effectiveWidth > 0 {
+		return PasskeyBoxStyle.Width(min(effectiveWidth-4, 70)).Render(content)
 	}
 
 	return PasskeyBoxStyle.Render(content)
@@ -180,16 +192,22 @@ func renderEmptyState(message string) string {
 
 // renderSeparator renderiza un separador.
 func (m Model) renderSeparator() string {
-	if m.width > 0 {
-		return SeparatorStyle.Render(strings.Repeat("─", m.width-4))
+	// Usar ancho efectivo
+	effectiveWidth := min(m.width, 140)
+
+	if effectiveWidth > 0 {
+		return SeparatorStyle.Render(strings.Repeat("─", effectiveWidth-4))
 	}
 	return SeparatorStyle.Render(strings.Repeat("─", 80))
 }
 
 // renderThickSeparator renderiza un separador grueso.
 func (m Model) renderThickSeparator() string {
-	if m.width > 0 {
-		return ThickSeparatorStyle.Render(strings.Repeat("━", m.width-4))
+	// Usar ancho efectivo
+	effectiveWidth := min(m.width, 140)
+
+	if effectiveWidth > 0 {
+		return ThickSeparatorStyle.Render(strings.Repeat("━", effectiveWidth-4))
 	}
 	return ThickSeparatorStyle.Render(strings.Repeat("━", 80))
 }
@@ -263,8 +281,11 @@ func (m Model) renderAdapterTable() string {
 		valueRow,
 	)
 
-	if m.width > 0 {
-		return BoxStyle.Width(m.width - 4).Render(table)
+	// Usar ancho efectivo
+	effectiveWidth := min(m.width, 140)
+
+	if effectiveWidth > 0 {
+		return BoxStyle.Width(effectiveWidth - 4).Render(table)
 	}
 
 	return BoxStyle.Render(table)

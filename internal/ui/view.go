@@ -15,6 +15,10 @@ func (m Model) View() string {
 		return m.renderLoadingView()
 	}
 
+	// Calcular ancho efectivo con límite máximo para terminales muy grandes
+	maxWidth := min(m.width, 140)
+	leftPadding := (m.width - maxWidth) / 2
+
 	// Layout principal
 	sections := []string{}
 
@@ -38,21 +42,24 @@ func (m Model) View() string {
 
 	sections = append(sections, "")
 
-	// Contenido principal - layout responsivo
-	if m.width >= 120 {
-		// Layout de dos columnas para pantallas anchas
-		sections = append(sections, m.renderTwoColumnLayout())
-	} else {
-		// Layout de una columna para pantallas normales/pequeñas
-		sections = append(sections, m.renderSingleColumnLayout())
-	}
+	// Contenido principal - siempre una columna
+	sections = append(sections, m.renderSingleColumnLayout())
 
 	sections = append(sections, "")
 
 	// Footer
 	sections = append(sections, m.renderFooter())
 
-	return lipgloss.JoinVertical(lipgloss.Left, sections...)
+	content := lipgloss.JoinVertical(lipgloss.Left, sections...)
+
+	// Centrar contenido en terminales muy grandes
+	if m.width > 140 {
+		return lipgloss.NewStyle().
+			PaddingLeft(leftPadding).
+			Render(content)
+	}
+
+	return content
 }
 
 // renderErrorView renderiza la vista de error.
@@ -89,8 +96,11 @@ func (m Model) renderTwoColumnLayout() string {
 	leftColumn := m.renderFoundDevicesSection()
 	rightColumn := m.renderConnectedDevicesSection()
 
-	// Calcular el ancho de cada columna
-	columnWidth := (m.width - 6) / 2
+	// Usar ancho efectivo con límite máximo
+	effectiveWidth := min(m.width, 160)
+
+	// Calcular el ancho de cada columna con espacio entre ellas
+	columnWidth := (effectiveWidth - 8) / 2
 
 	// Aplicar el ancho a las columnas
 	leftStyled := lipgloss.NewStyle().Width(columnWidth).Render(leftColumn)
@@ -99,7 +109,7 @@ func (m Model) renderTwoColumnLayout() string {
 	return lipgloss.JoinHorizontal(
 		lipgloss.Top,
 		leftStyled,
-		"  ",
+		"    ", // Más espacio entre columnas
 		rightStyled,
 	)
 }
@@ -127,10 +137,13 @@ func (m Model) renderFoundDevicesSection() string {
 	// Aplicar borde de panel si está enfocado
 	content := lipgloss.JoinVertical(lipgloss.Left, sections...)
 
+	// Usar ancho efectivo consistente con otros componentes
+	effectiveWidth := min(m.width, 140)
+
 	if isFocused {
-		return FocusedPanelStyle.Render(content)
+		return FocusedPanelStyle.Width(effectiveWidth - 4).Render(content)
 	}
-	return PanelStyle.Render(content)
+	return PanelStyle.Width(effectiveWidth - 4).Render(content)
 }
 
 // renderConnectedDevicesSection renderiza la sección de dispositivos conectados.
@@ -156,10 +169,13 @@ func (m Model) renderConnectedDevicesSection() string {
 	// Aplicar borde de panel si está enfocado
 	content := lipgloss.JoinVertical(lipgloss.Left, sections...)
 
+	// Usar ancho efectivo consistente con otros componentes
+	effectiveWidth := min(m.width, 140)
+
 	if isFocused {
-		return FocusedPanelStyle.Render(content)
+		return FocusedPanelStyle.Width(effectiveWidth - 4).Render(content)
 	}
-	return PanelStyle.Render(content)
+	return PanelStyle.Width(effectiveWidth - 4).Render(content)
 }
 
 // renderFoundDevicesList renderiza la lista de dispositivos disponibles.
