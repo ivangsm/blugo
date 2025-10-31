@@ -3,8 +3,8 @@ package ui
 import (
 	"sort"
 
-	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/bubbles/viewport"
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/ivangsm/blugo/internal/agent"
 	"github.com/ivangsm/blugo/internal/bluetooth"
 	"github.com/ivangsm/blugo/internal/config"
@@ -50,8 +50,8 @@ func (m Model) Init() tea.Cmd {
 	)
 }
 
-// GetFoundDevices devuelve los dispositivos disponibles (no conectados).
-// Maintains stable insertion order - devices stay in the order they were first discovered.
+// GetFoundDevices devuelve todos los dispositivos (disponibles y conectados).
+// Paired devices are sorted to the top, then maintains stable insertion order.
 func (m Model) GetFoundDevices() []*models.Device {
 	devices := make([]*models.Device, 0)
 
@@ -66,7 +66,7 @@ func (m Model) GetFoundDevices() []*models.Device {
 	// Use deviceOrder to maintain stable ordering
 	for _, addr := range m.deviceOrder {
 		dev, exists := m.devices[addr]
-		if !exists || dev.Connected {
+		if !exists {
 			continue
 		}
 
@@ -75,13 +75,26 @@ func (m Model) GetFoundDevices() []*models.Device {
 			continue
 		}
 
-		// Filter by RSSI threshold if configured
-		if dev.RSSI != 0 && dev.RSSI < int16(minRSSI) {
+		// Filter by RSSI threshold if configured (only for non-connected devices)
+		if !dev.Connected && dev.RSSI != 0 && dev.RSSI < int16(minRSSI) {
 			continue
 		}
 
 		devices = append(devices, dev)
 	}
+
+	// Sort: paired devices first, then by insertion order
+	sort.Slice(devices, func(i, j int) bool {
+		// Paired devices come first
+		if devices[i].Paired && !devices[j].Paired {
+			return true
+		}
+		if !devices[i].Paired && devices[j].Paired {
+			return false
+		}
+		// For devices with same paired status, maintain insertion order
+		return false // Keep original order
+	})
 
 	return devices
 }
@@ -102,12 +115,7 @@ func (m Model) GetConnectedDevices() []*models.Device {
 
 // GetSelectedDevice devuelve el dispositivo actualmente seleccionado.
 func (m Model) GetSelectedDevice() *models.Device {
-	var devices []*models.Device
-	if m.focusSection == "found" {
-		devices = m.GetFoundDevices()
-	} else {
-		devices = m.GetConnectedDevices()
-	}
+	devices := m.GetFoundDevices()
 
 	if m.selectedIndex < len(devices) {
 		return devices[m.selectedIndex]

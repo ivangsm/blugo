@@ -3,8 +3,8 @@ package ui
 import (
 	"fmt"
 
-	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/bubbles/viewport"
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/ivangsm/blugo/internal/config"
 	"github.com/ivangsm/blugo/internal/i18n"
 )
@@ -61,6 +61,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case StatusMsg:
 		return m.handleStatus(msg)
+
+	case ForgetDeviceMsg:
+		return m.handleForgetDevice(msg)
 
 	case AdapterUpdateMsg:
 		return m.handleAdapterUpdate(msg)
@@ -137,27 +140,13 @@ func (m Model) handleKeyPress(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		}
 
 	case "down", "j":
-		maxIndex := 0
-		if m.focusSection == "found" {
-			maxIndex = len(m.GetFoundDevices()) - 1
-		} else {
-			maxIndex = len(m.GetConnectedDevices()) - 1
-		}
+		maxIndex := len(m.GetFoundDevices()) - 1
 		if m.selectedIndex < maxIndex {
 			m.selectedIndex++
 			m.updateViewportContent()
 		}
 
-	case "tab":
-		if m.focusSection == "found" && len(m.GetConnectedDevices()) > 0 {
-			m.focusSection = "connected"
-			m.selectedIndex = 0
-			m.updateViewportContent()
-		} else if m.focusSection == "connected" && len(m.GetFoundDevices()) > 0 {
-			m.focusSection = "found"
-			m.selectedIndex = 0
-			m.updateViewportContent()
-		}
+	// Tab navigation removed since we only have one section now
 
 	case "s":
 		if m.manager != nil {
@@ -275,7 +264,12 @@ func (m Model) handleEnter() (tea.Model, tea.Cmd) {
 		return m, nil
 	}
 
-	if m.focusSection == "found" {
+	if dev.Connected {
+		// Desconectar dispositivo
+		m.busy = true
+		m.statusMessage = fmt.Sprintf(i18n.T.Disconnecting, dev.GetDisplayName())
+		return m, disconnectFromDeviceCmd(m.manager, dev)
+	} else {
 		// Conectar dispositivo
 		m.busy = true
 		if dev.Paired {
@@ -288,11 +282,6 @@ func (m Model) handleEnter() (tea.Model, tea.Cmd) {
 			connectToDeviceCmd(m.manager, dev),
 			waitForPasskeyCmd(m.agent),
 		)
-	} else {
-		// Desconectar dispositivo
-		m.busy = true
-		m.statusMessage = fmt.Sprintf(i18n.T.Disconnecting, dev.GetDisplayName())
-		return m, disconnectFromDeviceCmd(m.manager, dev)
 	}
 }
 
@@ -307,7 +296,7 @@ func (m Model) handleForget() (tea.Model, tea.Cmd) {
 		return m, nil
 	}
 
-	if m.focusSection == "connected" || (m.focusSection == "found" && dev.Paired) {
+	if dev.Paired {
 		m.busy = true
 		m.statusMessage = fmt.Sprintf(i18n.T.Forgetting, dev.GetDisplayName())
 		return m, forgetDeviceCmd(m.manager, dev)
@@ -402,6 +391,10 @@ func (m Model) handleConnectResult(msg ConnectResultMsg) (tea.Model, tea.Cmd) {
 		m.isError = false
 	}
 
+	// Auto-close passkey prompt immediately on any connection result (success or failure)
+	// This provides better responsiveness
+	m.pairingPasskey = nil
+
 	m.updateViewportContent()
 	return m, updateDevicesCmd(m.manager)
 }
@@ -411,6 +404,36 @@ func (m Model) handleStatus(msg StatusMsg) (tea.Model, tea.Cmd) {
 	m.busy = false
 	m.statusMessage = msg.Message
 	m.isError = msg.IsError
+	m.updateViewportContent()
+	return m, updateDevicesCmd(m.manager)
+}
+
+// handleForgetDevice maneja el olvido de un dispositivo.
+func (m Model) handleForgetDevice(msg ForgetDeviceMsg) (tea.Model, tea.Cmd) {
+	m.busy = false
+	m.statusMessage = msg.Message
+	m.isError = false
+
+	// Remove the device from our local cache
+	delete(m.devices, msg.Address)
+
+	// Remove from deviceOrder if present
+	for i, addr := range m.deviceOrder {
+		if addr == msg.Address {
+			m.deviceOrder = append(m.deviceOrder[:i], m.deviceOrder[i+1:]...)
+			break
+		}
+	}
+
+	// Adjust selectedIndex if necessary
+	maxIndex := len(m.GetFoundDevices()) - 1
+	if m.selectedIndex > maxIndex {
+		m.selectedIndex = maxIndex
+	}
+	if m.selectedIndex < 0 {
+		m.selectedIndex = 0
+	}
+
 	m.updateViewportContent()
 	return m, updateDevicesCmd(m.manager)
 }

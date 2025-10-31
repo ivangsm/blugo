@@ -67,5 +67,11 @@ type AdapterPropertyChangedMsg struct {
 	Err      error
 }
 
+// ForgetDeviceMsg indica que un dispositivo fue olvidado.
+type ForgetDeviceMsg struct {
+	Address string
+	Message string
+}
+
 // TickMsg es un tick del reloj para actualizaciones periódicas.
 type TickMsg time.Time

@@ -48,13 +48,13 @@ func (m Model) renderFullContent() string {
 
 	sections = append(sections, "")
 
-	// Tabla de información del adaptador (siempre visible)
-	sections = append(sections, m.renderAdapterTable())
+	// Contenido principal - siempre una columna
+	sections = append(sections, m.renderSingleColumnLayout())
 
 	sections = append(sections, "")
 
-	// Contenido principal - siempre una columna
-	sections = append(sections, m.renderSingleColumnLayout())
+	// Tabla de información del adaptador (movida al fondo)
+	sections = append(sections, m.renderAdapterTable())
 
 	sections = append(sections, "")
 
@@ -99,13 +99,8 @@ func (m Model) renderLoadingView() string {
 func (m Model) renderSingleColumnLayout() string {
 	sections := []string{}
 
-	// Sección de dispositivos disponibles
+	// Sección de dispositivos disponibles (ahora incluye todos los dispositivos)
 	sections = append(sections, m.renderFoundDevicesSection())
-
-	sections = append(sections, "")
-
-	// Sección de dispositivos conectados
-	sections = append(sections, m.renderConnectedDevicesSection())
 
 	return lipgloss.JoinVertical(lipgloss.Left, sections...)
 }
@@ -203,7 +198,9 @@ func (m Model) renderFoundDevicesList(devices []*models.Device, isFocused bool) 
 
 	for i, dev := range devices {
 		isSelected := isFocused && i == m.selectedIndex
-		item := renderDeviceItem(dev, isSelected, true)
+		// Show RSSI only for non-connected devices
+		showRSSI := !dev.Connected
+		item := renderDeviceItem(dev, isSelected, showRSSI)
 		items = append(items, item)
 	}
 

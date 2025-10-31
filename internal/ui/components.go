@@ -61,8 +61,6 @@ func (m Model) renderFooter() string {
 
 	if m.pairingPasskey != nil {
 		helpText = HelpStyle.Render(i18n.T.HelpPairing)
-	} else if m.focusSection == "connected" {
-		helpText = HelpStyle.Render(i18n.T.HelpActions + "\n" + i18n.T.HelpAdapterControl + "\n" + i18n.T.HelpScroll)
 	} else {
 		helpText = HelpStyle.Render(i18n.T.HelpNavigation + "\n" + i18n.T.HelpAdapterControl + "\n" + i18n.T.HelpScroll)
 	}
@@ -208,14 +206,13 @@ func renderDeviceItem(dev *models.Device, isSelected bool, showRSSI bool) string
 
 	// Badges
 	var badges []string
-	if dev.Paired {
+	if dev.Connected {
+		badges = append(badges, ConnectedBadgeStyle.Render(i18n.T.BadgeConnected))
+	} else if dev.Paired {
 		badges = append(badges, PairedBadgeStyle.Render(i18n.T.BadgePaired))
 	}
 	if dev.Trusted {
 		badges = append(badges, SuccessStyle.Render(i18n.T.BadgeTrusted))
-	}
-	if dev.Connected {
-		badges = append(badges, ConnectedBadgeStyle.Render(i18n.T.BadgeConnected))
 	}
 
 	// Construir la línea (parts already initialized above)

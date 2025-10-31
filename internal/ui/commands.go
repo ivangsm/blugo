@@ -101,6 +101,9 @@ func connectToDeviceCmd(manager *bluetooth.Manager, dev *models.Device) tea.Cmd 
 			time.Sleep(time.Duration(delay) * time.Millisecond)
 		}
 
+		// Small delay before attempting connection (helps with reconnection after disconnect)
+		time.Sleep(500 * time.Millisecond)
+
 		// Conectar
 		err := manager.ConnectDevice(dev.Path)
 		if err != nil {
@@ -142,7 +145,7 @@ func forgetDeviceCmd(manager *bluetooth.Manager, dev *models.Device) tea.Cmd {
 			return StatusMsg{Message: fmt.Sprintf("Error al olvidar: %s", err), IsError: true}
 		}
 
-		return StatusMsg{Message: fmt.Sprintf("Dispositivo %s olvidado", dev.GetDisplayName()), IsError: false}
+		return ForgetDeviceMsg{Address: dev.Address, Message: fmt.Sprintf("Dispositivo %s olvidado", dev.GetDisplayName())}
 	}
 }
 
