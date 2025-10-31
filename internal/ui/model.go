@@ -17,6 +17,7 @@ type Model struct {
 	agent             *agent.Agent
 	adapter           *models.Adapter
 	devices           map[string]*models.Device
+	deviceOrder       []string // Track insertion order of device addresses
 	selectedIndex     int
 	focusSection      string // "found" o "connected"
 	statusMessage     string
@@ -36,6 +37,7 @@ type Model struct {
 func NewModel() Model {
 	return Model{
 		devices:       make(map[string]*models.Device),
+		deviceOrder:   make([]string, 0),
 		focusSection:  "found",
 		selectedIndex: 0,
 	}
@@ -49,6 +51,7 @@ func (m Model) Init() tea.Cmd {
 }
 
 // GetFoundDevices devuelve los dispositivos disponibles (no conectados).
+// Maintains stable insertion order - devices stay in the order they were first discovered.
 func (m Model) GetFoundDevices() []*models.Device {
 	devices := make([]*models.Device, 0)
 
@@ -60,29 +63,26 @@ func (m Model) GetFoundDevices() []*models.Device {
 		minRSSI = config.Global.MinRSSIThreshold
 	}
 
-	for _, dev := range m.devices {
-		if !dev.Connected {
-			// Filter unnamed devices if configured
-			if hideUnnamed && dev.Name == "" && dev.Alias == "" {
-				continue
-			}
-
-			// Filter by RSSI threshold if configured
-			if dev.RSSI != 0 && dev.RSSI < int16(minRSSI) {
-				continue
-			}
-
-			devices = append(devices, dev)
+	// Use deviceOrder to maintain stable ordering
+	for _, addr := range m.deviceOrder {
+		dev, exists := m.devices[addr]
+		if !exists || dev.Connected {
+			continue
 		}
+
+		// Filter unnamed devices if configured
+		if hideUnnamed && dev.Name == "" && dev.Alias == "" {
+			continue
+		}
+
+		// Filter by RSSI threshold if configured
+		if dev.RSSI != 0 && dev.RSSI < int16(minRSSI) {
+			continue
+		}
+
+		devices = append(devices, dev)
 	}
-	sort.Slice(devices, func(i, j int) bool {
-		// Pareados primero
-		if devices[i].Paired != devices[j].Paired {
-			return devices[i].Paired
-		}
-		// Luego por RSSI
-		return devices[i].RSSI > devices[j].RSSI
-	})
+
 	return devices
 }
 

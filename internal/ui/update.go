@@ -359,6 +359,9 @@ func (m Model) handleDeviceUpdate(msg DeviceUpdateMsg) (tea.Model, tea.Cmd) {
 			if !oldDev.Connected && !newDev.Connected {
 				newDev.LastSeen = oldDev.LastSeen
 			}
+		} else {
+			// New device - add to deviceOrder to maintain stable ordering
+			m.deviceOrder = append(m.deviceOrder, addr)
 		}
 		m.devices[addr] = newDev
 	}

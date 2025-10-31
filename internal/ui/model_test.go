@@ -15,6 +15,9 @@ func TestNewModel(t *testing.T) {
 	if m.devices == nil {
 		t.Errorf("NewModel() should initialize devices map")
 	}
+	if m.deviceOrder == nil {
+		t.Errorf("NewModel() should initialize deviceOrder slice")
+	}
 	if m.focusSection != "found" {
 		t.Errorf("NewModel() focusSection = %v, want 'found'", m.focusSection)
 	}
@@ -24,15 +27,19 @@ func TestNewModel(t *testing.T) {
 	if len(m.devices) != 0 {
 		t.Errorf("NewModel() should have empty devices map")
 	}
+	if len(m.deviceOrder) != 0 {
+		t.Errorf("NewModel() should have empty deviceOrder slice")
+	}
 }
 
 func TestModel_GetFoundDevices(t *testing.T) {
 	tests := []struct {
-		name             string
-		devices          map[string]*models.Device
-		config           *config.Config
-		expectedCount    int
-		validateDevices  func(*testing.T, []*models.Device)
+		name            string
+		devices         map[string]*models.Device
+		deviceOrder     []string
+		config          *config.Config
+		expectedCount   int
+		validateDevices func(*testing.T, []*models.Device)
 	}{
 		{
 			name: "returns only non-connected devices",
@@ -56,6 +63,7 @@ func TestModel_GetFoundDevices(t *testing.T) {
 					RSSI:      -70,
 				},
 			},
+			deviceOrder:   []string{"AA:BB:CC:DD:EE:FF", "11:22:33:44:55:66", "77:88:99:AA:BB:CC"},
 			config:        &config.Config{HideUnnamedDevices: false, MinRSSIThreshold: -100},
 			expectedCount: 2,
 			validateDevices: func(t *testing.T, devices []*models.Device) {
@@ -67,41 +75,42 @@ func TestModel_GetFoundDevices(t *testing.T) {
 			},
 		},
 		{
-			name: "sorts paired devices first",
+			name: "maintains stable insertion order",
 			devices: map[string]*models.Device{
 				"AA:BB:CC:DD:EE:FF": {
 					Address:   "AA:BB:CC:DD:EE:FF",
-					Name:      "Unpaired Strong",
+					Name:      "First Device",
 					Connected: false,
 					Paired:    false,
 					RSSI:      -30,
 				},
 				"11:22:33:44:55:66": {
 					Address:   "11:22:33:44:55:66",
-					Name:      "Paired Weak",
+					Name:      "Second Device",
 					Connected: false,
 					Paired:    true,
 					RSSI:      -80,
 				},
 			},
+			deviceOrder:   []string{"AA:BB:CC:DD:EE:FF", "11:22:33:44:55:66"},
 			config:        &config.Config{HideUnnamedDevices: false, MinRSSIThreshold: -100},
 			expectedCount: 2,
 			validateDevices: func(t *testing.T, devices []*models.Device) {
 				if len(devices) != 2 {
 					t.Fatalf("Expected 2 devices, got %d", len(devices))
 				}
-				// First device should be paired
-				if !devices[0].Paired {
-					t.Errorf("First device should be paired, got %v", devices[0].Name)
+				// First device should be the one first in deviceOrder (not sorted by paired status)
+				if devices[0].Address != "AA:BB:CC:DD:EE:FF" {
+					t.Errorf("First device should maintain order, got %v", devices[0].Name)
 				}
-				// Second device should not be paired
-				if devices[1].Paired {
-					t.Errorf("Second device should not be paired, got %v", devices[1].Name)
+				// Second device should be the second in deviceOrder
+				if devices[1].Address != "11:22:33:44:55:66" {
+					t.Errorf("Second device should maintain order, got %v", devices[1].Name)
 				}
 			},
 		},
 		{
-			name: "sorts by RSSI within same pairing status",
+			name: "maintains order regardless of RSSI changes",
 			devices: map[string]*models.Device{
 				"AA:BB:CC:DD:EE:FF": {
 					Address:   "AA:BB:CC:DD:EE:FF",
@@ -125,21 +134,22 @@ func TestModel_GetFoundDevices(t *testing.T) {
 					RSSI:      -50,
 				},
 			},
+			deviceOrder:   []string{"AA:BB:CC:DD:EE:FF", "11:22:33:44:55:66", "77:88:99:AA:BB:CC"},
 			config:        &config.Config{HideUnnamedDevices: false, MinRSSIThreshold: -100},
 			expectedCount: 3,
 			validateDevices: func(t *testing.T, devices []*models.Device) {
 				if len(devices) != 3 {
 					t.Fatalf("Expected 3 devices, got %d", len(devices))
 				}
-				// Should be sorted by RSSI (strongest first)
-				if devices[0].RSSI != -30 {
-					t.Errorf("First device should have RSSI -30, got %d", devices[0].RSSI)
+				// Should maintain insertion order, not sorted by RSSI
+				if devices[0].Address != "AA:BB:CC:DD:EE:FF" {
+					t.Errorf("First device should maintain order")
 				}
-				if devices[1].RSSI != -50 {
-					t.Errorf("Second device should have RSSI -50, got %d", devices[1].RSSI)
+				if devices[1].Address != "11:22:33:44:55:66" {
+					t.Errorf("Second device should maintain order")
 				}
-				if devices[2].RSSI != -80 {
-					t.Errorf("Third device should have RSSI -80, got %d", devices[2].RSSI)
+				if devices[2].Address != "77:88:99:AA:BB:CC" {
+					t.Errorf("Third device should maintain order")
 				}
 			},
 		},
@@ -164,6 +174,7 @@ func TestModel_GetFoundDevices(t *testing.T) {
 					Connected: false,
 				},
 			},
+			deviceOrder:   []string{"AA:BB:CC:DD:EE:FF", "11:22:33:44:55:66", "77:88:99:AA:BB:CC"},
 			config:        &config.Config{HideUnnamedDevices: true, MinRSSIThreshold: -100},
 			expectedCount: 2,
 			validateDevices: func(t *testing.T, devices []*models.Device) {
@@ -189,6 +200,7 @@ func TestModel_GetFoundDevices(t *testing.T) {
 					Connected: false,
 				},
 			},
+			deviceOrder:   []string{"AA:BB:CC:DD:EE:FF", "11:22:33:44:55:66"},
 			config:        &config.Config{HideUnnamedDevices: false, MinRSSIThreshold: -100},
 			expectedCount: 2,
 			validateDevices: func(t *testing.T, devices []*models.Device) {
@@ -219,6 +231,7 @@ func TestModel_GetFoundDevices(t *testing.T) {
 					RSSI:      -70,
 				},
 			},
+			deviceOrder:   []string{"AA:BB:CC:DD:EE:FF", "11:22:33:44:55:66", "77:88:99:AA:BB:CC"},
 			config:        &config.Config{HideUnnamedDevices: false, MinRSSIThreshold: -80},
 			expectedCount: 2,
 			validateDevices: func(t *testing.T, devices []*models.Device) {
@@ -245,6 +258,7 @@ func TestModel_GetFoundDevices(t *testing.T) {
 					RSSI:      -90,
 				},
 			},
+			deviceOrder:   []string{"AA:BB:CC:DD:EE:FF", "11:22:33:44:55:66"},
 			config:        &config.Config{HideUnnamedDevices: false, MinRSSIThreshold: -50},
 			expectedCount: 1,
 			validateDevices: func(t *testing.T, devices []*models.Device) {
@@ -303,7 +317,7 @@ func TestModel_GetFoundDevices(t *testing.T) {
 			config.Global = tt.config
 
 			// Create model with test devices
-			m := Model{devices: tt.devices}
+			m := Model{devices: tt.devices, deviceOrder: tt.deviceOrder}
 
 			// Get found devices
 			foundDevices := m.GetFoundDevices()
@@ -518,6 +532,7 @@ func TestModel_GetSelectedDevice(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			m := Model{
 				devices:       devices,
+				deviceOrder:   []string{"AA:BB:CC:DD:EE:FF", "11:22:33:44:55:66", "77:88:99:AA:BB:CC"},
 				focusSection:  tt.focusSection,
 				selectedIndex: tt.selectedIndex,
 			}
@@ -543,6 +558,7 @@ func TestModel_GetSelectedDevice(t *testing.T) {
 func TestModel_GetSelectedDevice_EmptyLists(t *testing.T) {
 	m := Model{
 		devices:       map[string]*models.Device{},
+		deviceOrder:   []string{},
 		focusSection:  "found",
 		selectedIndex: 0,
 	}
@@ -597,6 +613,7 @@ func TestModel_Integration(t *testing.T) {
 
 	m := Model{
 		devices:       devices,
+		deviceOrder:   []string{"AA:BB:CC:DD:EE:FF", "11:22:33:44:55:66", "77:88:99:AA:BB:CC"},
 		focusSection:  "found",
 		selectedIndex: 0,
 	}
