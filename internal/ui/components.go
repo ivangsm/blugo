@@ -62,9 +62,9 @@ func (m Model) renderFooter() string {
 	if m.pairingPasskey != nil {
 		helpText = HelpStyle.Render(i18n.T.HelpPairing)
 	} else if m.focusSection == "connected" {
-		helpText = HelpStyle.Render(i18n.T.HelpActions + "\n" + i18n.T.HelpAdapterControl)
+		helpText = HelpStyle.Render(i18n.T.HelpActions + "\n" + i18n.T.HelpAdapterControl + "\n" + i18n.T.HelpScroll)
 	} else {
-		helpText = HelpStyle.Render(i18n.T.HelpNavigation + "\n" + i18n.T.HelpAdapterControl)
+		helpText = HelpStyle.Render(i18n.T.HelpNavigation + "\n" + i18n.T.HelpAdapterControl + "\n" + i18n.T.HelpScroll)
 	}
 
 	// Usar ancho efectivo

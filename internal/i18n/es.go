@@ -59,6 +59,7 @@ var spanishTranslations = Translations{
 	HelpNavigation:     "↑/↓: navegar | tab: cambiar | enter: conectar | d/x: olvidar",
 	HelpActions:        "↑/↓: navegar | tab: cambiar | enter: desconectar | d/x: olvidar",
 	HelpAdapterControl: "s: escaneo | p: encendido | v: descubrible | b: pairable | l: idioma | r: refrescar | q: salir",
+	HelpScroll:         "RePág/AvPág: página | Ctrl+↑/↓: scroll | Inicio/Fin: arriba/abajo | Rueda ratón: scroll",
 	HelpGeneral:        "q: salir",
 	HelpPairing:        "enter: confirmar | n/esc: cancelar | q: salir",
 

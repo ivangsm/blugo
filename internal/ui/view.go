@@ -16,6 +16,16 @@ func (m Model) View() string {
 		return m.renderLoadingView()
 	}
 
+	if !m.ready {
+		return "\n  Initializing..."
+	}
+
+	// Return viewport view (content is updated in Update())
+	return m.viewport.View()
+}
+
+// renderFullContent generates the complete content for the viewport
+func (m Model) renderFullContent() string {
 	// Calcular ancho efectivo con límite máximo para terminales muy grandes
 	maxWidth := min(m.width, GetMaxWidth())
 	leftPadding := (m.width - maxWidth) / 2
@@ -55,7 +65,7 @@ func (m Model) View() string {
 
 	// Centrar contenido en terminales muy grandes
 	if m.width > GetMaxWidth() {
-		return lipgloss.NewStyle().
+		content = lipgloss.NewStyle().
 			PaddingLeft(leftPadding).
 			Render(content)
 	}

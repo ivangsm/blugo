@@ -59,6 +59,7 @@ var englishTranslations = Translations{
 	HelpNavigation:     "↑/↓: navigate | tab: switch | enter: connect | d/x: forget",
 	HelpActions:        "↑/↓: navigate | tab: switch | enter: disconnect | d/x: forget",
 	HelpAdapterControl: "s: scan | p: power | v: discoverable | b: pairable | l: language | r: refresh | q: quit",
+	HelpScroll:         "PgUp/PgDn: scroll page | Ctrl+↑/↓: scroll | Home/End: top/bottom | Mouse wheel: scroll",
 	HelpGeneral:        "q: quit",
 	HelpPairing:        "enter: confirm | n/esc: cancel | q: quit",
 

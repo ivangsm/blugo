@@ -4,9 +4,18 @@ import (
 	"fmt"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/bubbles/viewport"
 	"github.com/ivangsm/blugo/internal/config"
 	"github.com/ivangsm/blugo/internal/i18n"
 )
+
+// updateViewportContent updates the viewport with current content
+func (m *Model) updateViewportContent() {
+	if m.ready {
+		content := m.renderFullContent()
+		m.viewport.SetContent(content)
+	}
+}
 
 // Update maneja las actualizaciones del modelo.
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -14,6 +23,21 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
 		m.height = msg.Height
+
+		if !m.ready {
+			// Primera vez - inicializar viewport
+			m.viewport = viewport.New(msg.Width, msg.Height)
+			m.viewport.YPosition = 0
+			m.ready = true
+		} else {
+			// Actualizar tamaño del viewport
+			m.viewport.Width = msg.Width
+			m.viewport.Height = msg.Height
+		}
+
+		// Update viewport content
+		m.updateViewportContent()
+
 		// tea.ClearScreen limpia la pantalla durante el resize
 		return m, tea.ClearScreen
 
@@ -46,6 +70,16 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case TickMsg:
 		return m.handleTick()
+
+	case tea.MouseMsg:
+		// Handle mouse wheel scrolling
+		switch msg.Type {
+		case tea.MouseWheelUp:
+			m.viewport.LineUp(3)
+		case tea.MouseWheelDown:
+			m.viewport.LineDown(3)
+		}
+		return m, nil
 	}
 
 	return m, nil
@@ -70,9 +104,36 @@ func (m Model) handleKeyPress(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "ctrl+c", "q":
 		return m.quit()
 
+	// Viewport scrolling
+	case "pgup":
+		m.viewport.ViewUp()
+		return m, nil
+
+	case "pgdown":
+		m.viewport.ViewDown()
+		return m, nil
+
+	case "ctrl+up":
+		m.viewport.LineUp(3)
+		return m, nil
+
+	case "ctrl+down":
+		m.viewport.LineDown(3)
+		return m, nil
+
+	case "home":
+		m.viewport.GotoTop()
+		return m, nil
+
+	case "end":
+		m.viewport.GotoBottom()
+		return m, nil
+
+	// Device navigation
 	case "up", "k":
 		if m.selectedIndex > 0 {
 			m.selectedIndex--
+			m.updateViewportContent()
 		}
 
 	case "down", "j":
@@ -84,15 +145,18 @@ func (m Model) handleKeyPress(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		}
 		if m.selectedIndex < maxIndex {
 			m.selectedIndex++
+			m.updateViewportContent()
 		}
 
 	case "tab":
 		if m.focusSection == "found" && len(m.GetConnectedDevices()) > 0 {
 			m.focusSection = "connected"
 			m.selectedIndex = 0
+			m.updateViewportContent()
 		} else if m.focusSection == "connected" && len(m.GetFoundDevices()) > 0 {
 			m.focusSection = "found"
 			m.selectedIndex = 0
+			m.updateViewportContent()
 		}
 
 	case "s":
@@ -161,6 +225,7 @@ func (m Model) handleKeyPress(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			_ = config.Global.Save()
 		}
 
+		m.updateViewportContent()
 		return m, nil
 	}
 
@@ -266,6 +331,7 @@ func (m Model) handleInit(msg InitMsg) (tea.Model, tea.Cmd) {
 	} else {
 		m.statusMessage = i18n.T.ScanPaused
 	}
+	m.updateViewportContent()
 	return m, tea.Batch(
 		updateDevicesCmd(m.manager),
 		updateAdapterInfoCmd(m.manager),
@@ -280,6 +346,7 @@ func (m Model) handleScanning(msg ScanningMsg) (tea.Model, tea.Cmd) {
 	} else {
 		m.statusMessage = i18n.T.ScanPaused
 	}
+	m.updateViewportContent()
 	return m, nil
 }
 
@@ -295,6 +362,7 @@ func (m Model) handleDeviceUpdate(msg DeviceUpdateMsg) (tea.Model, tea.Cmd) {
 		}
 		m.devices[addr] = newDev
 	}
+	m.updateViewportContent()
 	return m, nil
 }
 
@@ -304,6 +372,7 @@ func (m Model) handlePasskeyDisplay(msg PasskeyDisplayMsg) (tea.Model, tea.Cmd) 
 		m.pairingPasskey = &msg.Passkey
 		m.waitingForPasskey = false
 	}
+	m.updateViewportContent()
 	return m, nil
 }
 
@@ -330,6 +399,7 @@ func (m Model) handleConnectResult(msg ConnectResultMsg) (tea.Model, tea.Cmd) {
 		m.isError = false
 	}
 
+	m.updateViewportContent()
 	return m, updateDevicesCmd(m.manager)
 }
 
@@ -338,12 +408,14 @@ func (m Model) handleStatus(msg StatusMsg) (tea.Model, tea.Cmd) {
 	m.busy = false
 	m.statusMessage = msg.Message
 	m.isError = msg.IsError
+	m.updateViewportContent()
 	return m, updateDevicesCmd(m.manager)
 }
 
 // handleAdapterUpdate maneja la actualización de información del adaptador.
 func (m Model) handleAdapterUpdate(msg AdapterUpdateMsg) (tea.Model, tea.Cmd) {
 	m.adapter = msg.Adapter
+	m.updateViewportContent()
 	return m, nil
 }
 
@@ -354,6 +426,7 @@ func (m Model) handleAdapterPropertyChanged(msg AdapterPropertyChangedMsg) (tea.
 	if msg.Err != nil {
 		m.statusMessage = fmt.Sprintf("❌ Error al cambiar %s: %s", msg.Property, msg.Err.Error())
 		m.isError = true
+		m.updateViewportContent()
 		return m, nil
 	}
 
@@ -381,6 +454,7 @@ func (m Model) handleAdapterPropertyChanged(msg AdapterPropertyChangedMsg) (tea.
 
 	m.isError = false
 
+	m.updateViewportContent()
 	// Actualizar información del adaptador
 	return m, updateAdapterInfoCmd(m.manager)
 }

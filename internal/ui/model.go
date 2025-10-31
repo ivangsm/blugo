@@ -4,6 +4,7 @@ import (
 	"sort"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/bubbles/viewport"
 	"github.com/ivangsm/blugo/internal/agent"
 	"github.com/ivangsm/blugo/internal/bluetooth"
 	"github.com/ivangsm/blugo/internal/config"
@@ -27,6 +28,8 @@ type Model struct {
 	waitingForPasskey bool
 	width             int // Ancho de la terminal
 	height            int // Alto de la terminal
+	viewport          viewport.Model
+	ready             bool // Indica si el viewport está listo
 }
 
 // NewModel crea un nuevo modelo de UI.

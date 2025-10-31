@@ -72,6 +72,7 @@ type Translations struct {
 	HelpNavigation    string
 	HelpActions       string
 	HelpAdapterControl string
+	HelpScroll        string
 	HelpGeneral       string
 	HelpPairing       string
 
