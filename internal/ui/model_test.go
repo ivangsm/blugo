@@ -42,7 +42,7 @@ func TestModel_GetFoundDevices(t *testing.T) {
 		validateDevices func(*testing.T, []*models.Device)
 	}{
 		{
-			name: "returns only non-connected devices",
+			name: "returns all devices including connected",
 			devices: map[string]*models.Device{
 				"AA:BB:CC:DD:EE:FF": {
 					Address:   "AA:BB:CC:DD:EE:FF",
@@ -65,17 +65,25 @@ func TestModel_GetFoundDevices(t *testing.T) {
 			},
 			deviceOrder:   []string{"AA:BB:CC:DD:EE:FF", "11:22:33:44:55:66", "77:88:99:AA:BB:CC"},
 			config:        &config.Config{HideUnnamedDevices: false, MinRSSIThreshold: -100},
-			expectedCount: 2,
+			expectedCount: 3,
 			validateDevices: func(t *testing.T, devices []*models.Device) {
+				// Should include both connected and non-connected devices
+				hasConnected := false
+				hasNonConnected := false
 				for _, dev := range devices {
 					if dev.Connected {
-						t.Errorf("GetFoundDevices() should not return connected devices")
+						hasConnected = true
+					} else {
+						hasNonConnected = true
 					}
+				}
+				if !hasConnected || !hasNonConnected {
+					t.Errorf("GetFoundDevices() should return both connected and non-connected devices")
 				}
 			},
 		},
 		{
-			name: "maintains stable insertion order",
+			name: "sorts paired devices first, then maintains insertion order",
 			devices: map[string]*models.Device{
 				"AA:BB:CC:DD:EE:FF": {
 					Address:   "AA:BB:CC:DD:EE:FF",
@@ -99,13 +107,13 @@ func TestModel_GetFoundDevices(t *testing.T) {
 				if len(devices) != 2 {
 					t.Fatalf("Expected 2 devices, got %d", len(devices))
 				}
-				// First device should be the one first in deviceOrder (not sorted by paired status)
-				if devices[0].Address != "AA:BB:CC:DD:EE:FF" {
-					t.Errorf("First device should maintain order, got %v", devices[0].Name)
+				// Paired device should come first
+				if devices[0].Address != "11:22:33:44:55:66" {
+					t.Errorf("First device should be paired, got %v", devices[0].Name)
 				}
-				// Second device should be the second in deviceOrder
-				if devices[1].Address != "11:22:33:44:55:66" {
-					t.Errorf("Second device should maintain order, got %v", devices[1].Name)
+				// Unpaired device should come second
+				if devices[1].Address != "AA:BB:CC:DD:EE:FF" {
+					t.Errorf("Second device should be unpaired, got %v", devices[1].Name)
 				}
 			},
 		},
@@ -620,8 +628,8 @@ func TestModel_Integration(t *testing.T) {
 
 	// Test found devices
 	foundDevices := m.GetFoundDevices()
-	if len(foundDevices) != 2 {
-		t.Errorf("Should have 2 available devices, got %d", len(foundDevices))
+	if len(foundDevices) != 3 {
+		t.Errorf("Should have 3 available devices, got %d", len(foundDevices))
 	}
 
 	// First should be paired device (sorted by paired status first)

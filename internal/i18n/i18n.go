@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-// Language representa un idioma soportado
+// Language represents a supported language
 type Language string
 
 const (
@@ -13,84 +13,110 @@ const (
 	Spanish Language = "es"
 )
 
-// Translations contiene todas las traducciones
+// Translations contains all translations
 type Translations struct {
 	// App
-	AppTitle          string
-	Scanning          string
-	Paused            string
-	Initializing      string
+	AppTitle     string
+	Scanning     string
+	Paused       string
+	Initializing string
 
 	// Sections
-	AvailableDevices  string
-	ConnectedDevices  string
-	AdapterInfo       string
+	AvailableDevices string
+	ConnectedDevices string
+	AdapterInfo      string
 
 	// Device info
 	NoDevicesAvailable string
 	NoDevicesConnected string
 
 	// Actions
-	Connecting        string
-	Disconnecting     string
-	Pairing           string
-	Forgetting        string
+	Connecting    string
+	Disconnecting string
+	Pairing       string
+	Forgetting    string
 
 	// Adapter
-	AdapterPoweringOn  string
-	AdapterPoweringOff string
-	AdapterPoweredOn   string
-	AdapterPoweredOff  string
-	DiscoverableOn     string
-	DiscoverableOff    string
+	AdapterPoweringOn        string
+	AdapterPoweringOff       string
+	AdapterPoweredOn         string
+	AdapterPoweredOff        string
+	DiscoverableOn           string
+	DiscoverableOff          string
 	DiscoverableActivating   string
 	DiscoverableDeactivating string
-	PairableOn         string
-	PairableOff        string
-	PairableActivating   string
-	PairableDeactivating string
+	PairableOn               string
+	PairableOff              string
+	PairableActivating       string
+	PairableDeactivating     string
 
 	// Status messages
-	ScanEnabled       string
-	ScanPaused        string
-	Connected         string
-	Disconnected      string
+	ScanEnabled        string
+	ScanPaused         string
+	Connected          string
+	Disconnected       string
 	DisconnectedPaired string
-	Forgotten         string
+	Forgotten          string
 
 	// Errors
-	Error             string
-	ErrorScanToggle   string
+	Error           string
+	ErrorScanToggle string
 
 	// Pairing
-	PairingCode       string
+	PairingCode        string
 	PairingInstruction string
-	PairingConfirm    string
-	PairingCancelled  string
+	PairingConfirm     string
+	PairingCancelled   string
 
 	// Help
-	HelpNavigation    string
-	HelpActions       string
+	HelpNavigation     string
+	HelpActions        string
 	HelpAdapterControl string
-	HelpScroll        string
-	HelpGeneral       string
-	HelpPairing       string
+	HelpScroll         string
+	HelpGeneral        string
+	HelpPairing        string
 
 	// Adapter table
-	AdapterName       string
-	AdapterAlias      string
-	AdapterPower      string
-	AdapterPairable   string
+	AdapterName         string
+	AdapterAlias        string
+	AdapterPower        string
+	AdapterPairable     string
 	AdapterDiscoverable string
 
 	// Status
-	StatusOn          string
-	StatusOff         string
+	StatusOn  string
+	StatusOff string
 
 	// Badges
-	BadgePaired       string
-	BadgeConnected    string
-	BadgeTrusted      string
+	BadgePaired    string
+	BadgeConnected string
+	BadgeTrusted   string
+
+	// Error messages
+	ErrorDBusConnection         string
+	ErrorAdapterNotFound        string
+	ErrorStartDiscovery         string
+	ErrorStopDiscovery          string
+	ErrorRemoveDevice           string
+	ErrorPairDevice             string
+	ErrorTrustDevice            string
+	ErrorConnectDevice          string
+	ErrorDisconnectDevice       string
+	ErrorGetDevices             string
+	ErrorGetAdapterInfo         string
+	ErrorSetAdapterPowered      string
+	ErrorSetAdapterDiscoverable string
+	ErrorSetAdapterPairable     string
+	ErrorSetAdapterAlias        string
+	ErrorForgetDevice           string
+
+	// Status messages
+	StatusConfirmingPairing  string
+	StatusLoadingAdapterInfo string
+
+	// Warnings
+	WarningAgentRegistration       string
+	WarningAgentRegistrationDetail string
 }
 
 var currentLang Language = English // Default language

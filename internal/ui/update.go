@@ -17,7 +17,7 @@ func (m *Model) updateViewportContent() {
 	}
 }
 
-// Update maneja las actualizaciones del modelo.
+// Update handles model updates.
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
@@ -25,12 +25,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.height = msg.Height
 
 		if !m.ready {
-			// Primera vez - inicializar viewport
+			// First time - initialize viewport
 			m.viewport = viewport.New(msg.Width, msg.Height)
 			m.viewport.YPosition = 0
 			m.ready = true
 		} else {
-			// Actualizar tamaño del viewport
+			// Update viewport size
 			m.viewport.Width = msg.Width
 			m.viewport.Height = msg.Height
 		}
@@ -38,7 +38,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Update viewport content
 		m.updateViewportContent()
 
-		// tea.ClearScreen limpia la pantalla durante el resize
+		// tea.ClearScreen clears the screen during resize
 		return m, tea.ClearScreen
 
 	case tea.KeyMsg:
@@ -88,14 +88,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-// handleKeyPress maneja las teclas presionadas.
+// handleKeyPress handles pressed keys.
 func (m Model) handleKeyPress(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
-	// Si estamos esperando confirmación de passkey
+	// If we are waiting for passkey confirmation
 	if m.pairingPasskey != nil {
 		return m.handlePasskeyConfirmation(msg)
 	}
 
-	// Si estamos ocupados, solo permitir salir
+	// If we are busy, only allow exit
 	if m.busy {
 		if msg.String() == "ctrl+c" || msg.String() == "q" {
 			return m.quit()
@@ -165,7 +165,7 @@ func (m Model) handleKeyPress(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		}
 
 	case "p":
-		// Toggle Powered (encender/apagar Bluetooth)
+		// Toggle Powered (turn Bluetooth on/off)
 		if m.manager != nil && m.adapter != nil {
 			m.busy = true
 			if m.adapter.Powered {
@@ -221,20 +221,20 @@ func (m Model) handleKeyPress(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-// handlePasskeyConfirmation maneja la confirmación del passkey.
+// handlePasskeyConfirmation handles passkey confirmation.
 func (m Model) handlePasskeyConfirmation(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	switch msg.String() {
 	case "enter", "y":
-		// Confirmar pairing
+		// Confirm pairing
 		if m.agent != nil {
 			m.agent.GetConfirmChannel() <- true
 		}
 		m.pairingPasskey = nil
-		m.statusMessage = "Confirming pairing..."
+		m.statusMessage = i18n.T.StatusConfirmingPairing
 		return m, nil
 
 	case "n", "esc":
-		// Cancelar pairing
+		// Cancel pairing
 		if m.agent != nil {
 			m.agent.GetConfirmChannel() <- false
 		}
@@ -253,7 +253,7 @@ func (m Model) handlePasskeyConfirmation(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-// handleEnter maneja la tecla Enter.
+// handleEnter handles the Enter key.
 func (m Model) handleEnter() (tea.Model, tea.Cmd) {
 	if m.manager == nil {
 		return m, nil
@@ -265,12 +265,12 @@ func (m Model) handleEnter() (tea.Model, tea.Cmd) {
 	}
 
 	if dev.Connected {
-		// Desconectar dispositivo
+		// Disconnect device
 		m.busy = true
 		m.statusMessage = fmt.Sprintf(i18n.T.Disconnecting, dev.GetDisplayName())
 		return m, disconnectFromDeviceCmd(m.manager, dev)
 	} else {
-		// Conectar dispositivo
+		// Connect device
 		m.busy = true
 		if dev.Paired {
 			m.statusMessage = fmt.Sprintf(i18n.T.Connecting, dev.GetDisplayName())
@@ -285,7 +285,7 @@ func (m Model) handleEnter() (tea.Model, tea.Cmd) {
 	}
 }
 
-// handleForget maneja la acción de olvidar un dispositivo.
+// handleForget handles the forget device action.
 func (m Model) handleForget() (tea.Model, tea.Cmd) {
 	if m.manager == nil {
 		return m, nil
@@ -305,7 +305,7 @@ func (m Model) handleForget() (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-// handleInit maneja el mensaje de inicialización.
+// handleInit handles the initialization message.
 func (m Model) handleInit(msg InitMsg) (tea.Model, tea.Cmd) {
 	if msg.Err != nil {
 		m.err = msg.Err
@@ -327,7 +327,7 @@ func (m Model) handleInit(msg InitMsg) (tea.Model, tea.Cmd) {
 	)
 }
 
-// handleScanning maneja el cambio de estado de escaneo.
+// handleScanning handles scanning state change.
 func (m Model) handleScanning(msg ScanningMsg) (tea.Model, tea.Cmd) {
 	m.scanning = msg.Scanning
 	if msg.Scanning {
@@ -339,12 +339,12 @@ func (m Model) handleScanning(msg ScanningMsg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-// handleDeviceUpdate maneja la actualización de dispositivos.
+// handleDeviceUpdate handles device updates.
 func (m Model) handleDeviceUpdate(msg DeviceUpdateMsg) (tea.Model, tea.Cmd) {
-	// Actualizar solo dispositivos nuevos o modificados
+	// Update only new or modified devices
 	for addr, newDev := range msg.Devices {
 		if oldDev, exists := m.devices[addr]; exists {
-			// Mantener LastSeen si el dispositivo ya existía
+			// Keep LastSeen if device already existed
 			if !oldDev.Connected && !newDev.Connected {
 				newDev.LastSeen = oldDev.LastSeen
 			}
@@ -358,7 +358,7 @@ func (m Model) handleDeviceUpdate(msg DeviceUpdateMsg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-// handlePasskeyDisplay maneja la visualización del passkey.
+// handlePasskeyDisplay handles passkey display.
 func (m Model) handlePasskeyDisplay(msg PasskeyDisplayMsg) (tea.Model, tea.Cmd) {
 	if m.waitingForPasskey {
 		m.pairingPasskey = &msg.Passkey
@@ -368,7 +368,7 @@ func (m Model) handlePasskeyDisplay(msg PasskeyDisplayMsg) (tea.Model, tea.Cmd) 
 	return m, nil
 }
 
-// handleConnectResult maneja el resultado de una conexión.
+// handleConnectResult handles connection result.
 func (m Model) handleConnectResult(msg ConnectResultMsg) (tea.Model, tea.Cmd) {
 	m.busy = false
 	m.waitingForPasskey = false
@@ -399,7 +399,7 @@ func (m Model) handleConnectResult(msg ConnectResultMsg) (tea.Model, tea.Cmd) {
 	return m, updateDevicesCmd(m.manager)
 }
 
-// handleStatus maneja mensajes de estado.
+// handleStatus handles status messages.
 func (m Model) handleStatus(msg StatusMsg) (tea.Model, tea.Cmd) {
 	m.busy = false
 	m.statusMessage = msg.Message
@@ -408,7 +408,7 @@ func (m Model) handleStatus(msg StatusMsg) (tea.Model, tea.Cmd) {
 	return m, updateDevicesCmd(m.manager)
 }
 
-// handleForgetDevice maneja el olvido de un dispositivo.
+// handleForgetDevice handles device forgetting.
 func (m Model) handleForgetDevice(msg ForgetDeviceMsg) (tea.Model, tea.Cmd) {
 	m.busy = false
 	m.statusMessage = msg.Message
@@ -438,14 +438,14 @@ func (m Model) handleForgetDevice(msg ForgetDeviceMsg) (tea.Model, tea.Cmd) {
 	return m, updateDevicesCmd(m.manager)
 }
 
-// handleAdapterUpdate maneja la actualización de información del adaptador.
+// handleAdapterUpdate handles adapter information update.
 func (m Model) handleAdapterUpdate(msg AdapterUpdateMsg) (tea.Model, tea.Cmd) {
 	m.adapter = msg.Adapter
 	m.updateViewportContent()
 	return m, nil
 }
 
-// handleAdapterPropertyChanged maneja el cambio de una propiedad del adaptador.
+// handleAdapterPropertyChanged handles adapter property change.
 func (m Model) handleAdapterPropertyChanged(msg AdapterPropertyChangedMsg) (tea.Model, tea.Cmd) {
 	m.busy = false
 
@@ -456,7 +456,7 @@ func (m Model) handleAdapterPropertyChanged(msg AdapterPropertyChangedMsg) (tea.
 		return m, nil
 	}
 
-	// Mensajes de éxito según la propiedad
+	// Success messages based on property
 	switch msg.Property {
 	case "Powered":
 		if m.adapter != nil && m.adapter.Powered {
@@ -481,11 +481,11 @@ func (m Model) handleAdapterPropertyChanged(msg AdapterPropertyChangedMsg) (tea.
 	m.isError = false
 
 	m.updateViewportContent()
-	// Actualizar información del adaptador
+	// Update adapter information
 	return m, updateAdapterInfoCmd(m.manager)
 }
 
-// handleTick maneja el tick periódico.
+// handleTick handles periodic tick.
 func (m Model) handleTick() (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 	cmds = append(cmds, tickCmd())
@@ -496,7 +496,7 @@ func (m Model) handleTick() (tea.Model, tea.Cmd) {
 	return m, tea.Batch(cmds...)
 }
 
-// quit maneja la salida de la aplicación.
+// quit handles application exit.
 func (m Model) quit() (tea.Model, tea.Cmd) {
 	if m.manager != nil && m.scanning {
 		_ = m.manager.StopDiscovery()

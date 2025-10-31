@@ -8,7 +8,7 @@ import (
 	"github.com/ivangsm/blugo/internal/config"
 )
 
-// Device representa un dispositivo Bluetooth.
+// Device represents a Bluetooth device.
 type Device struct {
 	Path      dbus.ObjectPath
 	Address   string
@@ -20,7 +20,7 @@ type Device struct {
 	RSSI      int16
 	Icon      string
 	Class     uint32
-	Battery   *uint8 // Nivel de batería (0-100), nil si no disponible
+	Battery   *uint8 // Battery level (0-100), nil if not available
 	LastSeen  time.Time
 }
 
@@ -32,8 +32,8 @@ func emoji(e string) string {
 	return ""
 }
 
-// GetDisplayName devuelve el nombre a mostrar del dispositivo.
-// Prioriza: Name > Alias > Address.
+// GetDisplayName returns the display name of the device.
+// Prioritizes: Name > Alias > Address.
 func (d *Device) GetDisplayName() string {
 	if d.Name != "" {
 		return d.Name
@@ -44,14 +44,14 @@ func (d *Device) GetDisplayName() string {
 	return d.Address
 }
 
-// IsAvailable determina si el dispositivo está disponible pero no conectado.
+// IsAvailable determines if the device is available but not connected.
 func (d *Device) IsAvailable() bool {
 	return !d.Connected
 }
 
-// GetIcon devuelve el icono apropiado según el tipo de dispositivo.
+// GetIcon returns the appropriate icon based on device type.
 func (d *Device) GetIcon() string {
-	// Iconos según el tipo de dispositivo
+	// Icons based on device type
 	if d.Icon != "" {
 		switch d.Icon {
 		case "audio-card", "audio-headset", "audio-headphones":
@@ -73,7 +73,7 @@ func (d *Device) GetIcon() string {
 		}
 	}
 
-	// Fallback basado en clase de dispositivo
+	// Fallback based on device class
 	majorClass := (d.Class >> 8) & 0x1F
 	switch majorClass {
 	case 1: // Computer
@@ -91,8 +91,8 @@ func (d *Device) GetIcon() string {
 	return emoji("📶")
 }
 
-// GetBatteryInfo devuelve el icono y texto de la batería.
-// Retorna ("", "") si no hay información de batería disponible.
+// GetBatteryInfo returns the battery icon and text.
+// Returns ("", "") if no battery information is available.
 func (d *Device) GetBatteryInfo() (icon string, text string) {
 	if d.Battery == nil {
 		return "", ""
@@ -100,27 +100,27 @@ func (d *Device) GetBatteryInfo() (icon string, text string) {
 
 	level := *d.Battery
 
-	// Elegir icono según el nivel
+	// Choose icon based on level
 	switch {
 	case level >= 90:
-		icon = emoji("🔋") // Batería llena
+		icon = emoji("🔋") // Full battery
 	case level >= 60:
-		icon = emoji("🔋") // Batería alta
+		icon = emoji("🔋") // High battery
 	case level >= 30:
-		icon = emoji("🔋") // Batería media
+		icon = emoji("🔋") // Medium battery
 	case level >= 15:
-		icon = emoji("🪫") // Batería baja
+		icon = emoji("🪫") // Low battery
 	default:
-		icon = emoji("🪫") // Batería muy baja/crítica
+		icon = emoji("🪫") // Very low/critical battery
 	}
 
-	// Formato del texto
+	// Text format
 	text = fmt.Sprintf("%d%%", level)
 
 	return icon, text
 }
 
-// HasBattery indica si el dispositivo reporta nivel de batería.
+// HasBattery indicates if the device reports battery level.
 func (d *Device) HasBattery() bool {
 	return d.Battery != nil
 }

@@ -8,7 +8,7 @@ import (
 	"github.com/ivangsm/blugo/internal/models"
 )
 
-// InitMsg indica que la inicialización ha completado.
+// InitMsg indicates that initialization has completed.
 type InitMsg struct {
 	Manager  *bluetooth.Manager
 	Agent    *agent.Agent
@@ -16,62 +16,62 @@ type InitMsg struct {
 	Err      error
 }
 
-// ScanningMsg indica un cambio en el estado de escaneo.
+// ScanningMsg indicates a change in scanning state.
 type ScanningMsg struct {
 	Scanning bool
 }
 
-// DeviceUpdateMsg contiene dispositivos actualizados.
+// DeviceUpdateMsg contains updated devices.
 type DeviceUpdateMsg struct {
 	Devices map[string]*models.Device
 }
 
-// StatusMsg muestra un mensaje de estado.
+// StatusMsg shows a status message.
 type StatusMsg struct {
 	Message string
 	IsError bool
 }
 
-// ConnectResultMsg indica el resultado de una operación de conexión.
+// ConnectResultMsg indicates the result of a connection operation.
 type ConnectResultMsg struct {
 	Address string
 	Success bool
 	Err     error
 }
 
-// PairResultMsg indica el resultado de una operación de pairing.
+// PairResultMsg indicates the result of a pairing operation.
 type PairResultMsg struct {
 	Address string
 	Success bool
 	Err     error
 }
 
-// PasskeyDisplayMsg solicita mostrar un passkey.
+// PasskeyDisplayMsg requests to display a passkey.
 type PasskeyDisplayMsg struct {
 	Passkey uint32
 	Device  string
 }
 
-// PasskeyConfirmedMsg indica que el passkey fue confirmado.
+// PasskeyConfirmedMsg indicates that the passkey was confirmed.
 type PasskeyConfirmedMsg struct{}
 
-// AdapterUpdateMsg contiene información actualizada del adaptador.
+// AdapterUpdateMsg contains updated adapter information.
 type AdapterUpdateMsg struct {
 	Adapter *models.Adapter
 }
 
-// AdapterPropertyChangedMsg indica que una propiedad del adaptador cambió.
+// AdapterPropertyChangedMsg indicates that an adapter property changed.
 type AdapterPropertyChangedMsg struct {
 	Property string
 	Success  bool
 	Err      error
 }
 
-// ForgetDeviceMsg indica que un dispositivo fue olvidado.
+// ForgetDeviceMsg indicates that a device was forgotten.
 type ForgetDeviceMsg struct {
 	Address string
 	Message string
 }
 
-// TickMsg es un tick del reloj para actualizaciones periódicas.
+// TickMsg is a clock tick for periodic updates.
 type TickMsg time.Time

@@ -2,7 +2,7 @@ package models
 
 import "github.com/godbus/dbus/v5"
 
-// Adapter representa un adaptador Bluetooth del sistema.
+// Adapter represents a Bluetooth adapter in the system.
 type Adapter struct {
 	Path         dbus.ObjectPath
 	Address      string
@@ -14,7 +14,7 @@ type Adapter struct {
 	Discovering  bool
 }
 
-// GetDisplayName retorna el nombre a mostrar del adaptador.
+// GetDisplayName returns the display name of the adapter.
 func (a *Adapter) GetDisplayName() string {
 	if a.Alias != "" {
 		return a.Alias
@@ -25,13 +25,13 @@ func (a *Adapter) GetDisplayName() string {
 	return a.Address
 }
 
-// GetStatusIcon retorna el icono según el estado del adaptador.
+// GetStatusIcon returns the icon based on adapter status.
 func (a *Adapter) GetStatusIcon() string {
 	if !a.Powered {
-		return emoji("⚫") // Apagado
+		return emoji("⚫") // Off
 	}
 	if a.Discovering {
-		return emoji("🔍") // Escaneando
+		return emoji("🔍") // Scanning
 	}
-	return emoji("🔵") // Encendido
+	return emoji("🔵") // On
 }

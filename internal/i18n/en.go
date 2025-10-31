@@ -78,4 +78,30 @@ var englishTranslations = Translations{
 	BadgePaired:    "PAIRED",
 	BadgeConnected: "CONNECTED",
 	BadgeTrusted:   "Trusted",
+
+	// Error messages
+	ErrorDBusConnection:         "Could not connect to DBus",
+	ErrorAdapterNotFound:        "No Bluetooth adapter found",
+	ErrorStartDiscovery:         "Could not start discovery",
+	ErrorStopDiscovery:          "Could not stop discovery",
+	ErrorRemoveDevice:           "Could not remove device",
+	ErrorPairDevice:             "Error pairing device",
+	ErrorTrustDevice:            "Error trusting device",
+	ErrorConnectDevice:          "Error connecting device",
+	ErrorDisconnectDevice:       "Error disconnecting device",
+	ErrorGetDevices:             "Error getting devices",
+	ErrorGetAdapterInfo:         "Error getting adapter info",
+	ErrorSetAdapterPowered:      "Error changing adapter state",
+	ErrorSetAdapterDiscoverable: "Error changing discoverable mode",
+	ErrorSetAdapterPairable:     "Error changing pairable mode",
+	ErrorSetAdapterAlias:        "Error changing adapter alias",
+	ErrorForgetDevice:           "Error forgetting device",
+
+	// Status messages
+	StatusConfirmingPairing:  "Confirming pairing...",
+	StatusLoadingAdapterInfo: "Loading adapter information...",
+
+	// Warnings
+	WarningAgentRegistration:       "⚠️  Warning: Could not register pairing agent",
+	WarningAgentRegistrationDetail: "   The app will work but some devices may require manual pairing.",
 }

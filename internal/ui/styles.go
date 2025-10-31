@@ -5,7 +5,7 @@ import (
 	"github.com/ivangsm/blugo/internal/config"
 )
 
-// Colores del tema
+// Theme colors
 var (
 	primaryColor   = lipgloss.Color("205")
 	secondaryColor = lipgloss.Color("86")
@@ -19,7 +19,7 @@ var (
 	infoColor      = lipgloss.Color("51")
 )
 
-// Estilos de texto
+// Text styles
 var (
 	TitleStyle      = lipgloss.NewStyle().Foreground(primaryColor).Bold(true).Padding(0, 1)
 	SubtitleStyle   = lipgloss.NewStyle().Foreground(secondaryColor).Italic(true)
@@ -37,7 +37,7 @@ var (
 	MutedStyle      = lipgloss.NewStyle().Foreground(mutedColor)
 )
 
-// Estilos de bordes y contenedores
+// Border and container styles
 var (
 	BoxStyle = lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).
@@ -73,7 +73,7 @@ var (
 			Padding(0, 1)
 )
 
-// Estilos de lista
+// List styles
 var (
 	DeviceItemStyle = lipgloss.NewStyle().
 			PaddingLeft(2)
@@ -110,7 +110,7 @@ var (
 			Bold(true)
 )
 
-// Estilos de separadores
+// Separator styles
 var (
 	SeparatorStyle = lipgloss.NewStyle().
 			Foreground(borderColor)
@@ -120,7 +120,7 @@ var (
 				Bold(true)
 )
 
-// Estilos de badges
+// Badge styles
 var (
 	PairedBadgeStyle = lipgloss.NewStyle().
 				Foreground(successColor).
@@ -141,7 +141,7 @@ var (
 				Bold(true)
 )
 
-// Funciones de ayuda para layouts
+// Helper functions for layouts
 func max(a, b int) int {
 	if a > b {
 		return a
@@ -156,7 +156,7 @@ func min(a, b int) int {
 	return b
 }
 
-// GetBatteryStyle retorna el estilo apropiado según el nivel de batería.
+// GetBatteryStyle returns the appropriate style based on battery level.
 func GetBatteryStyle(level uint8) lipgloss.Style {
 	highThreshold := 60
 	lowThreshold := 30

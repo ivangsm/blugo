@@ -5,10 +5,11 @@ import (
 	"time"
 
 	"github.com/godbus/dbus/v5"
+	"github.com/ivangsm/blugo/internal/i18n"
 	"github.com/ivangsm/blugo/internal/models"
 )
 
-// getDevices obtiene todos los dispositivos Bluetooth del sistema.
+// getDevices gets all Bluetooth devices from the system.
 func getDevices(conn *dbus.Conn) (map[string]*models.Device, error) {
 	obj := conn.Object(bluezService, "/")
 	var paths map[string]map[string]map[string]dbus.Variant
@@ -28,7 +29,7 @@ func getDevices(conn *dbus.Conn) (map[string]*models.Device, error) {
 	return devices, nil
 }
 
-// parseDevice convierte las propiedades DBus en un modelo Device.
+// parseDevice converts DBus properties into a Device model.
 func parseDevice(path dbus.ObjectPath, interfaces map[string]map[string]dbus.Variant, props map[string]dbus.Variant) *models.Device {
 	dev := &models.Device{
 		Path:     path,
@@ -81,12 +82,12 @@ func parseDevice(path dbus.ObjectPath, interfaces map[string]map[string]dbus.Var
 		}
 	}
 
-	// Usar Alias si no hay Name
+	// Use Alias if no Name
 	if dev.Name == "" && dev.Alias != "" {
 		dev.Name = dev.Alias
 	}
 
-	// Obtener información de batería si está disponible
+	// Get battery information if available
 	if batteryProps, ok := interfaces[bluezBatteryIface]; ok {
 		if variant, ok := batteryProps["Percentage"]; ok {
 			if percentage, ok := variant.Value().(byte); ok {
@@ -98,43 +99,43 @@ func parseDevice(path dbus.ObjectPath, interfaces map[string]map[string]dbus.Var
 	return dev
 }
 
-// PairDevice empareja un dispositivo.
+// PairDevice pairs a device.
 func (m *Manager) PairDevice(devicePath dbus.ObjectPath) error {
 	obj := m.conn.Object(bluezService, devicePath)
 	err := obj.Call(bluezDeviceIface+".Pair", 0).Err
 	if err != nil {
-		return fmt.Errorf("error al parear dispositivo: %w", err)
+		return fmt.Errorf(i18n.T.ErrorPairDevice+": %w", err)
 	}
 	return nil
 }
 
-// TrustDevice marca un dispositivo como confiable.
+// TrustDevice marks a device as trusted.
 func (m *Manager) TrustDevice(devicePath dbus.ObjectPath) error {
 	obj := m.conn.Object(bluezService, devicePath)
 	err := obj.Call("org.freedesktop.DBus.Properties.Set", 0,
 		bluezDeviceIface, "Trusted", dbus.MakeVariant(true)).Err
 	if err != nil {
-		return fmt.Errorf("error al confiar en dispositivo: %w", err)
+		return fmt.Errorf(i18n.T.ErrorTrustDevice+": %w", err)
 	}
 	return nil
 }
 
-// ConnectDevice conecta a un dispositivo.
+// ConnectDevice connects to a device.
 func (m *Manager) ConnectDevice(devicePath dbus.ObjectPath) error {
 	obj := m.conn.Object(bluezService, devicePath)
 	err := obj.Call(bluezDeviceIface+".Connect", 0).Err
 	if err != nil {
-		return fmt.Errorf("error al conectar dispositivo: %w", err)
+		return fmt.Errorf(i18n.T.ErrorConnectDevice+": %w", err)
 	}
 	return nil
 }
 
-// DisconnectDevice desconecta un dispositivo.
+// DisconnectDevice disconnects a device.
 func (m *Manager) DisconnectDevice(devicePath dbus.ObjectPath) error {
 	obj := m.conn.Object(bluezService, devicePath)
 	err := obj.Call(bluezDeviceIface+".Disconnect", 0).Err
 	if err != nil {
-		return fmt.Errorf("error al desconectar dispositivo: %w", err)
+		return fmt.Errorf(i18n.T.ErrorDisconnectDevice+": %w", err)
 	}
 	return nil
 }

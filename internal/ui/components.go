@@ -10,7 +10,7 @@ import (
 	"github.com/ivangsm/blugo/internal/models"
 )
 
-// renderHeader renderiza el encabezado de la aplicación.
+// renderHeader renders the application header.
 func (m Model) renderHeader() string {
 	titleText := i18n.T.AppTitle
 	if Emoji(EmojiAppTitle) != "" {
@@ -33,10 +33,10 @@ func (m Model) renderHeader() string {
 		scanStatus = MutedStyle.Render(statusText)
 	}
 
-	// Usar ancho efectivo
+	// Use effective width
 	effectiveWidth := min(m.width, GetMaxWidth())
 
-	// Centrar el título y alinear status a la derecha
+	// Center the title and align status to the right
 	if effectiveWidth > 0 {
 		titleWidth := lipgloss.Width(title)
 		statusWidth := lipgloss.Width(scanStatus)
@@ -55,7 +55,7 @@ func (m Model) renderHeader() string {
 	return HeaderBoxStyle.Render(lipgloss.JoinHorizontal(lipgloss.Top, title, "  ", scanStatus))
 }
 
-// renderFooter renderiza el pie de página con ayuda.
+// renderFooter renders the footer with help.
 func (m Model) renderFooter() string {
 	var helpText string
 
@@ -65,7 +65,7 @@ func (m Model) renderFooter() string {
 		helpText = HelpStyle.Render(i18n.T.HelpNavigation + "\n" + i18n.T.HelpAdapterControl + "\n" + i18n.T.HelpScroll)
 	}
 
-	// Usar ancho efectivo
+	// Use effective width
 	effectiveWidth := min(m.width, GetMaxWidth())
 
 	if effectiveWidth > 0 {
@@ -75,7 +75,7 @@ func (m Model) renderFooter() string {
 	return FooterBoxStyle.Render(helpText)
 }
 
-// renderStatusBar renderiza la barra de estado.
+// renderStatusBar renders the status bar.
 func (m Model) renderStatusBar() string {
 	if m.statusMessage == "" {
 		return ""
@@ -102,7 +102,7 @@ func (m Model) renderStatusBar() string {
 		styled = SuccessStyle.Render(text)
 	}
 
-	// Usar ancho efectivo
+	// Use effective width
 	effectiveWidth := min(m.width, GetMaxWidth())
 
 	if effectiveWidth > 0 {
@@ -112,7 +112,7 @@ func (m Model) renderStatusBar() string {
 	return BoxStyle.Render(styled)
 }
 
-// renderPasskeyPrompt renderiza el prompt de passkey.
+// renderPasskeyPrompt renders the passkey prompt.
 func (m Model) renderPasskeyPrompt() string {
 	passkeyFormat := i18n.T.PairingCode
 	if Emoji(EmojiPairingKey) != "" {
@@ -135,7 +135,7 @@ func (m Model) renderPasskeyPrompt() string {
 		confirm,
 	)
 
-	// Usar ancho efectivo
+	// Use effective width
 	effectiveWidth := min(m.width, GetMaxWidth())
 
 	if effectiveWidth > 0 {
@@ -145,12 +145,12 @@ func (m Model) renderPasskeyPrompt() string {
 	return PasskeyBoxStyle.Render(content)
 }
 
-// renderDeviceCount renderiza el contador de dispositivos.
+// renderDeviceCount renders the device counter.
 func renderDeviceCount(count int) string {
 	return MutedStyle.Render(fmt.Sprintf("(%d)", count))
 }
 
-// renderSectionHeader renderiza el encabezado de una sección.
+// renderSectionHeader renders a section header.
 func renderSectionHeader(icon, title string, count int, isFocused bool) string {
 	countStr := renderDeviceCount(count)
 
@@ -164,7 +164,7 @@ func renderSectionHeader(icon, title string, count int, isFocused bool) string {
 	return HeaderStyle.Render(header)
 }
 
-// renderDeviceItem renderiza un item de dispositivo.
+// renderDeviceItem renders a device item.
 func renderDeviceItem(dev *models.Device, isSelected bool, showRSSI bool) string {
 	icon := DeviceIconStyle.Render(dev.GetIcon())
 	name := DeviceNameStyle.Render(dev.GetDisplayName())
@@ -180,7 +180,7 @@ func renderDeviceItem(dev *models.Device, isSelected bool, showRSSI bool) string
 		parts = append(parts, address)
 	}
 
-	// Información adicional
+	// Additional information
 	var info []string
 
 	// RSSI (conditional based on config)
@@ -192,7 +192,7 @@ func renderDeviceItem(dev *models.Device, isSelected bool, showRSSI bool) string
 		info = append(info, DeviceInfoStyle.Render(fmt.Sprintf("%d dBm", dev.RSSI)))
 	}
 
-	// Batería (conditional based on config)
+	// Battery (conditional based on config)
 	showBatteryConfig := true
 	if config.Global != nil {
 		showBatteryConfig = config.Global.ShowBattery
@@ -215,7 +215,7 @@ func renderDeviceItem(dev *models.Device, isSelected bool, showRSSI bool) string
 		badges = append(badges, SuccessStyle.Render(i18n.T.BadgeTrusted))
 	}
 
-	// Construir la línea (parts already initialized above)
+	// Build the line (parts already initialized above)
 
 	if len(info) > 0 {
 		parts = append(parts, MutedStyle.Render("|"), strings.Join(info, " "+MutedStyle.Render("|")+" "))
@@ -238,7 +238,7 @@ func renderDeviceItem(dev *models.Device, isSelected bool, showRSSI bool) string
 	return DeviceItemStyle.Render(line)
 }
 
-// renderEmptyState renderiza un estado vacío.
+// renderEmptyState renders an empty state.
 func renderEmptyState(message string) string {
 	return MutedStyle.Padding(2, 4).Render(message)
 }
@@ -253,9 +253,9 @@ func getEmptyConnectedDevicesMessage() string {
 	return i18n.T.NoDevicesConnected
 }
 
-// renderSeparator renderiza un separador.
+// renderSeparator renders a separator.
 func (m Model) renderSeparator() string {
-	// Usar ancho efectivo
+	// Use effective width
 	effectiveWidth := min(m.width, GetMaxWidth())
 
 	if effectiveWidth > 0 {
@@ -264,9 +264,9 @@ func (m Model) renderSeparator() string {
 	return SeparatorStyle.Render(strings.Repeat("─", 80))
 }
 
-// renderThickSeparator renderiza un separador grueso.
+// renderThickSeparator renders a thick separator.
 func (m Model) renderThickSeparator() string {
-	// Usar ancho efectivo
+	// Use effective width
 	effectiveWidth := min(m.width, GetMaxWidth())
 
 	if effectiveWidth > 0 {
@@ -275,31 +275,31 @@ func (m Model) renderThickSeparator() string {
 	return ThickSeparatorStyle.Render(strings.Repeat("━", 80))
 }
 
-// renderAdapterTable renderiza la tabla de información del adaptador.
+// renderAdapterTable renders the adapter information table.
 func (m Model) renderAdapterTable() string {
 	if m.adapter == nil {
-		return BoxStyle.Render(MutedStyle.Render("Loading adapter information..."))
+		return BoxStyle.Render(MutedStyle.Render(i18n.T.StatusLoadingAdapterInfo))
 	}
 
-	// Definir anchos de columna consistentes
+	// Define consistent column widths
 	const (
 		labelWidth = 14
 		valueWidth = 18
 	)
 
-	// Estilo para labels (izquierda)
+	// Style for labels (left)
 	labelStyle := lipgloss.NewStyle().
 		Bold(true).
 		Foreground(secondaryColor).
 		Width(labelWidth).
 		Align(lipgloss.Left)
 
-	// Estilo para valores (izquierda)
+	// Style for values (left)
 	valueStyle := lipgloss.NewStyle().
 		Width(valueWidth).
 		Align(lipgloss.Left)
 
-	// Crear cada fila de la tabla: label | value
+	// Create each table row: label | value
 	rows := []string{}
 
 	// Row 1: Name
@@ -318,7 +318,7 @@ func (m Model) renderAdapterTable() string {
 	)
 	rows = append(rows, aliasRow)
 
-	// Row 3: Power (con color)
+	// Row 3: Power (with color)
 	var powerText string
 	if m.adapter.Powered {
 		powerText = SuccessStyle.Render(i18n.T.StatusOn)
@@ -332,7 +332,7 @@ func (m Model) renderAdapterTable() string {
 	)
 	rows = append(rows, powerRow)
 
-	// Row 4: Pairable (con color)
+	// Row 4: Pairable (with color)
 	var pairableText string
 	if m.adapter.Pairable {
 		pairableText = SuccessStyle.Render(i18n.T.StatusOn)
@@ -346,7 +346,7 @@ func (m Model) renderAdapterTable() string {
 	)
 	rows = append(rows, pairableRow)
 
-	// Row 5: Discoverable (con color)
+	// Row 5: Discoverable (with color)
 	var discoverableText string
 	if m.adapter.Discoverable {
 		discoverableText = SuccessStyle.Render(i18n.T.StatusOn)
@@ -360,10 +360,10 @@ func (m Model) renderAdapterTable() string {
 	)
 	rows = append(rows, discoverableRow)
 
-	// Unir todas las filas verticalmente
+	// Join all rows vertically
 	tableContent := lipgloss.JoinVertical(lipgloss.Left, rows...)
 
-	// Header de la tabla
+	// Table header
 	separator := SeparatorStyle.Render(strings.Repeat("─", labelWidth+valueWidth))
 
 	table := lipgloss.JoinVertical(
@@ -373,7 +373,7 @@ func (m Model) renderAdapterTable() string {
 		tableContent,
 	)
 
-	// Usar ancho efectivo
+	// Use effective width
 	effectiveWidth := min(m.width, GetMaxWidth())
 
 	if effectiveWidth > 0 {

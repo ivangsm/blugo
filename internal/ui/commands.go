@@ -13,7 +13,7 @@ import (
 	"github.com/ivangsm/blugo/internal/models"
 )
 
-// InitializeCmd inicializa el manager de Bluetooth y el agente.
+// InitializeCmd initializes the Bluetooth manager and agent.
 func InitializeCmd(program *tea.Program) tea.Cmd {
 	return func() tea.Msg {
 		manager, err := bluetooth.NewManager()
@@ -21,16 +21,16 @@ func InitializeCmd(program *tea.Program) tea.Cmd {
 			return InitMsg{Err: err}
 		}
 
-		// Crear y registrar el agente
+		// Create and register the agent
 		btAgent := agent.NewAgent(program)
 		err = btAgent.Register(manager.GetConnection())
 		if err != nil {
-			// No es crítico, la app funcionará pero puede requerir pairing manual
-			fmt.Fprintf(os.Stderr, "⚠️  Advertencia: No se pudo registrar agente de pairing: %v\n", err)
-			fmt.Fprintf(os.Stderr, "   La app funcionará pero algunos dispositivos pueden requerir pairing manual.\n")
+			// Not critical, the app will work but may require manual pairing
+			fmt.Fprintf(os.Stderr, "%s: %v\n", i18n.T.WarningAgentRegistration, err)
+			fmt.Fprintf(os.Stderr, "%s\n", i18n.T.WarningAgentRegistrationDetail)
 		}
 
-		// Iniciar descubrimiento (if enabled in config)
+		// Start discovery (if enabled in config)
 		autoStart := true // Default
 		if config.Global != nil {
 			autoStart = config.Global.AutoStartScanning
@@ -49,7 +49,7 @@ func InitializeCmd(program *tea.Program) tea.Cmd {
 	}
 }
 
-// toggleScanningCmd alterna el estado de escaneo.
+// toggleScanningCmd toggles scanning state.
 func toggleScanningCmd(manager *bluetooth.Manager, currentlyScanning bool) tea.Cmd {
 	return func() tea.Msg {
 		var err error
@@ -67,33 +67,33 @@ func toggleScanningCmd(manager *bluetooth.Manager, currentlyScanning bool) tea.C
 	}
 }
 
-// updateDevicesCmd actualiza la lista de dispositivos.
+// updateDevicesCmd updates the device list.
 func updateDevicesCmd(manager *bluetooth.Manager) tea.Cmd {
 	return func() tea.Msg {
 		devices, err := manager.GetDevices()
 		if err != nil {
-			return StatusMsg{Message: fmt.Sprintf("Error al obtener dispositivos: %s", err), IsError: true}
+			return StatusMsg{Message: fmt.Sprintf(i18n.T.ErrorGetDevices+": %s", err), IsError: true}
 		}
 		return DeviceUpdateMsg{Devices: devices}
 	}
 }
 
-// connectToDeviceCmd conecta a un dispositivo.
+// connectToDeviceCmd connects to a device.
 func connectToDeviceCmd(manager *bluetooth.Manager, dev *models.Device) tea.Cmd {
 	return func() tea.Msg {
-		// Si no está pareado, intentar pairing
+		// If not paired, try pairing
 		if !dev.Paired {
 			err := manager.PairDevice(dev.Path)
 			if err != nil {
 				return ConnectResultMsg{Address: dev.Address, Success: false, Err: fmt.Errorf("error al parear: %w", err)}
 			}
 
-			// Confiar en el dispositivo (if enabled in config)
+			// Trust the device (if enabled in config)
 			if config.Global != nil && config.Global.AutoTrustOnPair {
 				_ = manager.TrustDevice(dev.Path)
 			}
 
-			// Esperar un momento después del pairing (configurable)
+			// Wait a moment after pairing (configurable)
 			delay := 1000 // Default 1 second
 			if config.Global != nil {
 				delay = config.Global.PairingDelay
@@ -104,7 +104,7 @@ func connectToDeviceCmd(manager *bluetooth.Manager, dev *models.Device) tea.Cmd 
 		// Small delay before attempting connection (helps with reconnection after disconnect)
 		time.Sleep(500 * time.Millisecond)
 
-		// Conectar
+		// Connect
 		err := manager.ConnectDevice(dev.Path)
 		if err != nil {
 			return ConnectResultMsg{Address: dev.Address, Success: false, Err: fmt.Errorf("error al conectar: %w", err)}
@@ -114,7 +114,7 @@ func connectToDeviceCmd(manager *bluetooth.Manager, dev *models.Device) tea.Cmd 
 	}
 }
 
-// disconnectFromDeviceCmd desconecta de un dispositivo.
+// disconnectFromDeviceCmd disconnects from a device.
 func disconnectFromDeviceCmd(manager *bluetooth.Manager, dev *models.Device) tea.Cmd {
 	return func() tea.Msg {
 		err := manager.DisconnectDevice(dev.Path)
@@ -125,10 +125,10 @@ func disconnectFromDeviceCmd(manager *bluetooth.Manager, dev *models.Device) tea
 	}
 }
 
-// forgetDeviceCmd olvida (elimina) un dispositivo.
+// forgetDeviceCmd forgets (removes) a device.
 func forgetDeviceCmd(manager *bluetooth.Manager, dev *models.Device) tea.Cmd {
 	return func() tea.Msg {
-		// Desconectar primero si está conectado
+		// Disconnect first if connected
 		if dev.Connected {
 			_ = manager.DisconnectDevice(dev.Path)
 			// Wait before removing (configurable)
@@ -139,17 +139,17 @@ func forgetDeviceCmd(manager *bluetooth.Manager, dev *models.Device) tea.Cmd {
 			time.Sleep(time.Duration(delay) * time.Millisecond)
 		}
 
-		// Eliminar el dispositivo
+		// Remove the device
 		err := manager.RemoveDevice(dev.Path)
 		if err != nil {
-			return StatusMsg{Message: fmt.Sprintf("Error al olvidar: %s", err), IsError: true}
+			return StatusMsg{Message: fmt.Sprintf(i18n.T.ErrorForgetDevice+": %s", err), IsError: true}
 		}
 
-		return ForgetDeviceMsg{Address: dev.Address, Message: fmt.Sprintf("Dispositivo %s olvidado", dev.GetDisplayName())}
+		return ForgetDeviceMsg{Address: dev.Address, Message: fmt.Sprintf(i18n.T.Forgotten+": %s", dev.GetDisplayName())}
 	}
 }
 
-// waitForPasskeyCmd espera a que se reciba un passkey.
+// waitForPasskeyCmd waits for a passkey to be received.
 func waitForPasskeyCmd(agent *agent.Agent) tea.Cmd {
 	if agent == nil {
 		return nil
@@ -161,7 +161,7 @@ func waitForPasskeyCmd(agent *agent.Agent) tea.Cmd {
 	}
 }
 
-// tickCmd genera un tick periódico.
+// tickCmd generates a periodic tick.
 func tickCmd() tea.Cmd {
 	interval := 2 // Default fallback
 	if config.Global != nil {
@@ -178,18 +178,18 @@ func tickCmd() tea.Cmd {
 	})
 }
 
-// updateAdapterInfoCmd actualiza la información del adaptador.
+// updateAdapterInfoCmd updates the adapter information.
 func updateAdapterInfoCmd(manager *bluetooth.Manager) tea.Cmd {
 	return func() tea.Msg {
 		adapter, err := manager.GetAdapterInfo()
 		if err != nil {
-			return StatusMsg{Message: fmt.Sprintf("Error al obtener info del adaptador: %s", err), IsError: true}
+			return StatusMsg{Message: fmt.Sprintf(i18n.T.ErrorGetAdapterInfo+": %s", err), IsError: true}
 		}
 		return AdapterUpdateMsg{Adapter: adapter}
 	}
 }
 
-// toggleAdapterPoweredCmd enciende o apaga el adaptador.
+// toggleAdapterPoweredCmd turns the adapter on or off.
 func toggleAdapterPoweredCmd(manager *bluetooth.Manager, currentState bool) tea.Cmd {
 	return func() tea.Msg {
 		newState := !currentState
@@ -201,7 +201,7 @@ func toggleAdapterPoweredCmd(manager *bluetooth.Manager, currentState bool) tea.
 	}
 }
 
-// toggleAdapterDiscoverableCmd activa o desactiva el modo discoverable.
+// toggleAdapterDiscoverableCmd enables or disables discoverable mode.
 func toggleAdapterDiscoverableCmd(manager *bluetooth.Manager, currentState bool) tea.Cmd {
 	return func() tea.Msg {
 		newState := !currentState
@@ -213,7 +213,7 @@ func toggleAdapterDiscoverableCmd(manager *bluetooth.Manager, currentState bool)
 	}
 }
 
-// toggleAdapterPairableCmd activa o desactiva el modo pairable.
+// toggleAdapterPairableCmd enables or disables pairable mode.
 func toggleAdapterPairableCmd(manager *bluetooth.Manager, currentState bool) tea.Cmd {
 	return func() tea.Msg {
 		newState := !currentState

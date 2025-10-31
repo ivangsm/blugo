@@ -11,7 +11,7 @@ import (
 	"github.com/ivangsm/blugo/internal/models"
 )
 
-// Model representa el estado de la aplicación TUI.
+// Model represents the state of the TUI application.
 type Model struct {
 	manager           *bluetooth.Manager
 	agent             *agent.Agent
@@ -27,13 +27,13 @@ type Model struct {
 	err               error
 	pairingPasskey    *uint32
 	waitingForPasskey bool
-	width             int // Ancho de la terminal
-	height            int // Alto de la terminal
+	width             int // Terminal width
+	height            int // Terminal height
 	viewport          viewport.Model
-	ready             bool // Indica si el viewport está listo
+	ready             bool // Indicates if the viewport is ready
 }
 
-// NewModel crea un nuevo modelo de UI.
+// NewModel creates a new UI model.
 func NewModel() Model {
 	return Model{
 		devices:       make(map[string]*models.Device),
@@ -43,14 +43,14 @@ func NewModel() Model {
 	}
 }
 
-// Init inicializa el modelo.
+// Init initializes the model.
 func (m Model) Init() tea.Cmd {
 	return tea.Batch(
 		tickCmd(),
 	)
 }
 
-// GetFoundDevices devuelve todos los dispositivos (disponibles y conectados).
+// GetFoundDevices returns all devices (available and connected).
 // Paired devices are sorted to the top, then maintains stable insertion order.
 func (m Model) GetFoundDevices() []*models.Device {
 	devices := make([]*models.Device, 0)
@@ -99,7 +99,7 @@ func (m Model) GetFoundDevices() []*models.Device {
 	return devices
 }
 
-// GetConnectedDevices devuelve los dispositivos conectados.
+// GetConnectedDevices returns the connected devices.
 func (m Model) GetConnectedDevices() []*models.Device {
 	devices := make([]*models.Device, 0)
 	for _, dev := range m.devices {
@@ -113,9 +113,14 @@ func (m Model) GetConnectedDevices() []*models.Device {
 	return devices
 }
 
-// GetSelectedDevice devuelve el dispositivo actualmente seleccionado.
+// GetSelectedDevice returns the currently selected device.
 func (m Model) GetSelectedDevice() *models.Device {
-	devices := m.GetFoundDevices()
+	var devices []*models.Device
+	if m.focusSection == "connected" {
+		devices = m.GetConnectedDevices()
+	} else {
+		devices = m.GetFoundDevices()
+	}
 
 	if m.selectedIndex < len(devices) {
 		return devices[m.selectedIndex]
