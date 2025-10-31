@@ -285,15 +285,13 @@ docker run --rm -it --privileged --net=host \
 - ✅ Color-coded badges and status indicators
 - ✅ Real-time scanning with pause/resume
 - ✅ Clean terminal handling (alt-screen mode)
+- ✅ Persistent configuration
+- ✅ Unit and integration tests
+- ✅ Configuration file support (TOML/YAML)
 
 ### Planned Features
 - [ ] Support for multiple Bluetooth adapters
-- [ ] Specific Bluetooth profiles (A2DP, HFP, etc.)
-- [ ] Connection history
-- [ ] Persistent configuration
 - [ ] Enhanced logging and debugging
-- [ ] Unit and integration tests
-- [ ] Configuration file support (TOML/YAML)
 - [ ] Customizable color themes
 
 ---

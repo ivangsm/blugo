@@ -286,15 +286,13 @@ docker run --rm -it --privileged --net=host \
 - ✅ Badges e indicadores de estado con códigos de color
 - ✅ Escaneo en tiempo real con pausar/reanudar
 - ✅ Manejo limpio de terminal (modo pantalla alternativa)
+- ✅ Configuración persistente
+- ✅ Soporte de archivos de configuración (TOML/YAML)
+- ✅ Tests unitarios e integración
 
 ### Características Planeadas
 - [ ] Soporte para múltiples adaptadores Bluetooth
-- [ ] Perfiles Bluetooth específicos (A2DP, HFP, etc.)
-- [ ] Historial de conexiones
-- [ ] Configuración persistente
 - [ ] Logging y debugging mejorado
-- [ ] Tests unitarios e integración
-- [ ] Soporte de archivos de configuración (TOML/YAML)
 - [ ] Temas de color personalizables
 
 ---
