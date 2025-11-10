@@ -17,7 +17,6 @@ go.work.sum
 
 # Compiled binary
 blugo
-/blugo
 blugo-*
 *.tar.gz
 *.sha256
@@ -45,5 +44,3 @@ __debug_bin
 # Environment files
 .env
 .env.local
-
-gob

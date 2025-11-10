@@ -21,8 +21,7 @@ func main() {
 	flag.Parse()
 
 	if *showVersion {
-		fmt.Printf("Blugo %s\n", version)
-		fmt.Println("Bluetooth Manager for Linux")
+		fmt.Println(version)
 		os.Exit(0)
 	}
 	// Initialize configuration

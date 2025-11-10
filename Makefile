@@ -5,11 +5,16 @@ BINARY_NAME=blugo
 INSTALL_PATH=/usr/local/bin
 CMD_PATH=./cmd/blugo
 
+# Version detection
+# Priority: 1. Git tag, 2. VERSION file, 3. "dev"
+VERSION := $(shell git describe --tags --exact-match 2>/dev/null || cat VERSION 2>/dev/null || echo "dev")
+LDFLAGS := -ldflags "-s -w -X main.version=$(VERSION)"
+
 # Build the application
 build:
-	@echo "Building $(BINARY_NAME)..."
-	@go build -o $(BINARY_NAME) $(CMD_PATH)
-	@echo "Build complete: $(BINARY_NAME)"
+	@echo "Building $(BINARY_NAME) $(VERSION)..."
+	@go build $(LDFLAGS) -o $(BINARY_NAME) $(CMD_PATH)
+	@echo "Build complete: $(BINARY_NAME) $(VERSION)"
 
 # Run the application
 run: build
@@ -66,10 +71,10 @@ deps:
 
 # Build for multiple platforms
 build-all:
-	@echo "Building for multiple platforms..."
-	@GOOS=linux GOARCH=amd64 go build -o $(BINARY_NAME)-linux-amd64 $(CMD_PATH)
-	@GOOS=linux GOARCH=arm64 go build -o $(BINARY_NAME)-linux-arm64 $(CMD_PATH)
-	@echo "Multi-platform build complete"
+	@echo "Building for multiple platforms ($(VERSION))..."
+	@GOOS=linux GOARCH=amd64 go build $(LDFLAGS) -o $(BINARY_NAME)-linux-amd64 $(CMD_PATH)
+	@GOOS=linux GOARCH=arm64 go build $(LDFLAGS) -o $(BINARY_NAME)-linux-arm64 $(CMD_PATH)
+	@echo "Multi-platform build complete: $(VERSION)"
 
 # Docker build
 docker-build:
