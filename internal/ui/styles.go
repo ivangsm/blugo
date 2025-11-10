@@ -135,7 +135,7 @@ var (
 				Bold(true)
 
 	ConnectedBadgeStyle = lipgloss.NewStyle().
-				Foreground(lipgloss.Color("15")).
+				Foreground(lipgloss.Color("232")).
 				Background(successColor).
 				Padding(0, 1).
 				Bold(true)
