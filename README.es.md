@@ -41,39 +41,44 @@ Español | [English](README.md)
 
 ```
 ╭────────────────────────────────────────────────────────────────╮
-│ 🔵 BLUGO - Gestor Bluetooth               🔍 Escaneando         │
-╰────────────────────────────────────────────────────────────────╯
-
-╭────────────────────────────────────────────────────────────────╮
-│ ⚡ Adaptador Bluetooth                                          │
-│ ────────────────────────────────────────────────────────────   │
-│ Name            Alias           Power    Pairable  Discoverable│
-│ bluez-5.0       Mi Laptop       ON       OFF       OFF         │
+│                  🔵 BLUGO - Gestor Bluetooth                   │
+│                         🔍 Escaneando                          │
 ╰────────────────────────────────────────────────────────────────╯
 
 ╭────────────────────────────────────────────────────────────────╮
 │                                                                │
-│ 📡 DISPOSITIVOS DISPONIBLES (2) ◀                              │
+│ 📡 Dispositivos Disponibles (3)                                │
 │ ────────────────────────────────────────────────────────────   │
 │                                                                │
-│ ▶ 🎧 Sony WH-1000XM4 (AA:BB:CC:DD:EE:FF) | -45 dBm | 🔋 85%   │
-│   ⌨️  Keychron K3 (11:22:33:44:55:66) | -38 dBm PAREADO        │
+│ ▶ 🎧 Sony WH-1000XM4 (AA:BB:CC:DD:EE:FF)                      │
+│   | -45 dBm | 🔋 85%                                           │
+│   [CONECTADO]                                                  │
+│                                                                │
+│   ⌨️  Keychron K3 (11:22:33:44:55:66)                          │
+│   | -38 dBm | 🔋 60%                                           │
+│   [PAREADO]                                                    │
+│                                                                │
+│   🖱️  Logitech MX Master 3 (FF:EE:DD:CC:BB:AA)                │
+│   | -52 dBm | 🪫 12%                                           │
 │                                                                │
 ╰────────────────────────────────────────────────────────────────╯
 
 ╭────────────────────────────────────────────────────────────────╮
 │                                                                │
-│ 🔗 DISPOSITIVOS CONECTADOS (1)                                 │
+│ Información del Adaptador                                      │
 │ ────────────────────────────────────────────────────────────   │
-│                                                                │
-│   🖱️  Logitech MX Master 3 (FF:EE:DD:CC:BB:AA) | 🪫 12%       │
+│ Nombre:        hci0                                            │
+│ Alias:         Mi Laptop                                       │
+│ Encendido:     ✓ Sí                                            │
+│ Pairable:      ✓ Sí                                            │
+│ Descubrible:   ✗ No                                            │
 │                                                                │
 ╰────────────────────────────────────────────────────────────────╯
 
 ╭────────────────────────────────────────────────────────────────╮
-│ ↑/↓: navegar | Tab: cambiar | Enter: conectar | D/X: olvidar  │
-│ S: escaneo | P: encendido | V: descubrible | B: pairable      │
-│ Q: salir                                                       │
+│ ↑/k: Seleccionar  Enter: Conectar/Desconectar  D/X: Olvidar  │
+│ S: Alternar Escaneo  P: Encendido  V: Descubrible             │
+│ B: Pairable  L: Idioma  Q: Salir                              │
 ╰────────────────────────────────────────────────────────────────╯
 ```
 
@@ -82,7 +87,7 @@ Español | [English](README.md)
 ## Requisitos
 
 - **Linux** con BlueZ instalado
-- **Go 1.23** o superior
+- **Go 1.25** o superior
 - **Adaptador Bluetooth** compatible con BlueZ
 - Acceso a **DBus** del sistema
 
@@ -118,7 +123,7 @@ sudo systemctl start bluetooth
 ```bash
 # Clonar el repositorio
 git clone https://github.com/ivangsm/blugo.git
-cd gob
+cd blugo
 
 # Compilar
 make build
@@ -132,16 +137,16 @@ make install
 ```bash
 # Clonar el repositorio
 git clone https://github.com/ivangsm/blugo.git
-cd gob
+cd blugo
 
 # Descargar dependencias
 go mod download
 
 # Compilar desde cmd/blugo
-go build -o gob ./cmd/blugo
+go build -o blugo ./cmd/blugo
 
 # (Opcional) Instalar en el sistema
-sudo mv gob /usr/local/bin/
+sudo mv blugo /usr/local/bin/
 ```
 
 ---
@@ -155,14 +160,16 @@ Simplemente ejecuta el binario:
 
 O si lo instalaste en el sistema:
 ```bash
-gob
+blugo
 ```
 
 ### Controles de Teclado
 
 **Navegación:**
 - `↑/↓` o `k/j`: Navegar entre dispositivos
-- `Tab`: Cambiar entre secciones (disponibles/conectados)
+- `PgUp/PgDn`: Desplazar vista por página
+- `Ctrl+↑/↓`: Desplazar vista por línea
+- `Home/End`: Saltar al inicio/final de la lista
 - `r`: Refrescar lista de dispositivos manualmente
 
 **Acciones de Dispositivos:**
@@ -184,10 +191,6 @@ gob
 - `n` o `Esc`: Cancelar pairing
 
 ---
-
-## Arquitectura
-
-BLUGO sigue principios SOLID y patrones de arquitectura limpia:
 
 ### Estructura del Proyecto
 
