@@ -34,6 +34,7 @@
 - **Scan control**: Pause/resume scanning with visual indicator
 - **Alt-screen mode**: Clean terminal on exit and resize
 - **Internationalization**: Full i18n support (English/Spanish), easily extensible for more languages
+- **Flexible theming**: Automatically matches your terminal theme or use custom colors
 
 ---
 
@@ -80,6 +81,26 @@
 │ S: Toggle Scan  P: Power  V: Discoverable  B: Pairable        │
 │ L: Language  Q: Quit                                           │
 ╰────────────────────────────────────────────────────────────────╯
+```
+
+---
+
+## Theming
+
+Blugo supports two color theme modes:
+
+1. **ANSI Mode (Recommended)**: Automatically uses your terminal's color scheme
+   - Matches any terminal theme (Catppuccin, Gruvbox, Dracula, Nord, etc.)
+   - No configuration needed
+   - Most compatible option
+
+2. **TrueColor Mode**: Original Blugo colors (256-color palette)
+   - Consistent appearance across all terminals
+   - Hardcoded color scheme
+
+Configure in `~/.config/blugo/config.toml`:
+```toml
+theme_mode = "ansi"  # Options: "ansi", "truecolor"
 ```
 
 ---
@@ -292,11 +313,11 @@ docker run --rm -it --privileged --net=host \
 - ✅ Persistent configuration
 - ✅ Unit and integration tests
 - ✅ Configuration file support (TOML/YAML)
+- ✅ Take colorscheme from terminal
 
 ### Planned Features
 - [ ] Support for multiple Bluetooth adapters
 - [ ] Enhanced logging and debugging
-- [ ] Customizable color themes
 
 ---
 

@@ -5,18 +5,18 @@ import (
 	"github.com/ivangsm/blugo/internal/config"
 )
 
-// Theme colors
+// Theme colors - these will be updated by the theme system
 var (
-	primaryColor   = lipgloss.Color("205")
-	secondaryColor = lipgloss.Color("86")
-	accentColor    = lipgloss.Color("57")
-	successColor   = lipgloss.Color("82")
-	warningColor   = lipgloss.Color("214")
-	errorColor     = lipgloss.Color("196")
-	mutedColor     = lipgloss.Color("240")
-	borderColor    = lipgloss.Color("238")
-	highlightColor = lipgloss.Color("230")
-	infoColor      = lipgloss.Color("51")
+	primaryColor   lipgloss.Color
+	secondaryColor lipgloss.Color
+	accentColor    lipgloss.Color
+	successColor   lipgloss.Color
+	warningColor   lipgloss.Color
+	errorColor     lipgloss.Color
+	mutedColor     lipgloss.Color
+	borderColor    lipgloss.Color
+	highlightColor lipgloss.Color
+	infoColor      lipgloss.Color
 )
 
 // Text styles

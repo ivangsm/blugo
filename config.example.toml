@@ -1,0 +1,46 @@
+# Blugo Configuration File - Example
+# Copy this file to ~/.config/blugo/config.toml and customize as needed
+
+# GENERAL SETTINGS
+language = "en"      # Default language (en, es)
+show_emojis = true   # Whether to show emojis in UI
+
+# THEME SETTINGS
+# Choose how blugo displays colors:
+#
+# Option 1 (RECOMMENDED): Use your terminal's color scheme
+theme_mode = "ansi"
+# This option uses standard ANSI colors (0-15) which automatically
+# match your terminal theme (Catppuccin, Gruvbox, Dracula, Nord, etc.)
+# Works with any terminal emulator.
+#
+# Option 2: Use hardcoded colors (original blugo colors)
+# theme_mode = "truecolor"
+# This uses the original blugo color scheme (256-color palette).
+# Looks the same across all terminals.
+
+# PERFORMANCE & TIMING
+refresh_interval = 2     # Device list refresh interval in seconds (1-10)
+pairing_delay = 1000     # Wait time after pairing in milliseconds (0-5000)
+disconnect_delay = 500   # Wait time before forgetting device in milliseconds (0-2000)
+
+# DISPLAY & UI
+max_terminal_width = 140   # Maximum UI width in characters (80-200)
+show_rssi = true           # Show signal strength for available devices
+show_battery = true        # Show battery percentage
+show_device_address = true # Show MAC addresses
+compact_mode = false       # Reduce padding/spacing
+
+# BLUETOOTH BEHAVIOR
+auto_trust_on_pair = true   # Automatically trust devices after pairing
+auto_start_scanning = true  # Start scanning on app launch
+remember_language = true    # Save language changes to config
+
+# BATTERY THRESHOLDS (percentage 0-100)
+battery_high_threshold = 60 # Level above which battery is "high" (green)
+battery_low_threshold = 30  # Level below which battery is "low" (red)
+
+# FILTERING & DISPLAY
+hide_unnamed_devices = false  # Hide devices without a name
+min_rssi_threshold = -100     # Only show devices above this signal strength (dBm)
+device_timeout = 0            # Remove devices not seen for X seconds (0 = never)

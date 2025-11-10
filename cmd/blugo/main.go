@@ -34,6 +34,13 @@ func main() {
 	// Set language from config
 	i18n.InitFromConfig(config.Global.Language)
 
+	// Initialize theme from config
+	themeMode := ui.ThemeMode(config.Global.ThemeMode)
+	if err := ui.InitializeTheme(themeMode); err != nil {
+		fmt.Printf("Warning: Failed to initialize theme: %v\n", err)
+		// Continue with default theme
+	}
+
 	// Crear el modelo inicial
 	m := ui.NewModel()
 

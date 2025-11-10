@@ -14,10 +14,13 @@ type Config struct {
 	Language   string `toml:"language"`    // Default language (en, es)
 	ShowEmojis bool   `toml:"show_emojis"` // Whether to show emojis in UI
 
+	// Theme settings
+	ThemeMode string `toml:"theme_mode"` // Color theme mode: "ansi" or "truecolor"
+
 	// Performance & Timing (in seconds)
-	RefreshInterval  int `toml:"refresh_interval"`  // Device list refresh interval (1-10 seconds)
-	PairingDelay     int `toml:"pairing_delay"`     // Wait time after pairing in milliseconds (0-5000)
-	DisconnectDelay  int `toml:"disconnect_delay"`  // Wait time before forgetting device in milliseconds (0-2000)
+	RefreshInterval int `toml:"refresh_interval"` // Device list refresh interval (1-10 seconds)
+	PairingDelay    int `toml:"pairing_delay"`    // Wait time after pairing in milliseconds (0-5000)
+	DisconnectDelay int `toml:"disconnect_delay"` // Wait time before forgetting device in milliseconds (0-2000)
 
 	// Display & UI
 	MaxTerminalWidth  int  `toml:"max_terminal_width"`  // Maximum UI width in characters (80-200)
@@ -27,9 +30,9 @@ type Config struct {
 	CompactMode       bool `toml:"compact_mode"`        // Reduce padding/spacing
 
 	// Bluetooth Behavior
-	AutoTrustOnPair   bool `toml:"auto_trust_on_pair"`   // Automatically trust devices after pairing
-	AutoStartScanning bool `toml:"auto_start_scanning"`  // Start scanning on app launch
-	RememberLanguage  bool `toml:"remember_language"`    // Save language changes to config
+	AutoTrustOnPair   bool `toml:"auto_trust_on_pair"`  // Automatically trust devices after pairing
+	AutoStartScanning bool `toml:"auto_start_scanning"` // Start scanning on app launch
+	RememberLanguage  bool `toml:"remember_language"`   // Save language changes to config
 
 	// Battery Thresholds (percentage 0-100)
 	BatteryHighThreshold int `toml:"battery_high_threshold"` // Level above which battery is "high"
@@ -53,31 +56,34 @@ func Default() *Config {
 		Language:   "en",
 		ShowEmojis: true,
 
+		// Theme settings
+		ThemeMode: "ansi", // Use terminal ANSI colors by default
+
 		// Performance & Timing
-		RefreshInterval: 2,     // 2 seconds (balanced)
-		PairingDelay:    1000,  // 1 second
-		DisconnectDelay: 500,   // 500ms
+		RefreshInterval: 2,    // 2 seconds (balanced)
+		PairingDelay:    1000, // 1 second
+		DisconnectDelay: 500,  // 500ms
 
 		// Display & UI
-		MaxTerminalWidth:  140,  // Good for most terminals
+		MaxTerminalWidth:  140, // Good for most terminals
 		ShowRSSI:          true,
 		ShowBattery:       true,
 		ShowDeviceAddress: true,
 		CompactMode:       false,
 
 		// Bluetooth Behavior
-		AutoTrustOnPair:   true,  // Convenience
-		AutoStartScanning: true,  // Most users want this
-		RememberLanguage:  true,  // Persist language preference
+		AutoTrustOnPair:   true, // Convenience
+		AutoStartScanning: true, // Most users want this
+		RememberLanguage:  true, // Persist language preference
 
 		// Battery Thresholds
-		BatteryHighThreshold: 60,  // 60% and above is "high"
-		BatteryLowThreshold:  30,  // Below 30% is "low"
+		BatteryHighThreshold: 60, // 60% and above is "high"
+		BatteryLowThreshold:  30, // Below 30% is "low"
 
 		// Filtering & Display
 		HideUnnamedDevices: false,
-		MinRSSIThreshold:   -100,  // Show all devices (very weak signal)
-		DeviceTimeout:      0,     // Never timeout (keep all discovered devices)
+		MinRSSIThreshold:   -100, // Show all devices (very weak signal)
+		DeviceTimeout:      0,    // Never timeout (keep all discovered devices)
 	}
 }
 
@@ -147,6 +153,11 @@ func (c *Config) Save() error {
 # GENERAL SETTINGS
 # language: Default language (en, es)
 # show_emojis: Whether to show emojis in UI (true/false)
+
+# THEME SETTINGS
+# theme_mode: Color theme mode (ansi, truecolor)
+#   - "ansi": Use terminal's ANSI colors (respects terminal theme) - RECOMMENDED
+#   - "truecolor": Use hardcoded colors (original blugo colors)
 
 # PERFORMANCE & TIMING
 # refresh_interval: Device list refresh interval in seconds (1-10)

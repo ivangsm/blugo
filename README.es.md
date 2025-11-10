@@ -34,6 +34,7 @@ Español | [English](README.md)
 - **Control de escaneo**: Pausar/reanudar el escaneo con indicador visual
 - **Modo pantalla alternativa**: Terminal limpia al salir y redimensionar
 - **Internacionalización**: Soporte completo de i18n (Inglés/Español), fácilmente extensible para más idiomas
+- **Temas flexibles**: Se adapta automáticamente al tema de tu terminal o usa colores personalizados
 
 ---
 
@@ -80,6 +81,26 @@ Español | [English](README.md)
 │ S: Alternar Escaneo  P: Encendido  V: Descubrible             │
 │ B: Pairable  L: Idioma  Q: Salir                              │
 ╰────────────────────────────────────────────────────────────────╯
+```
+
+---
+
+## Temas
+
+Blugo soporta dos modos de tema de colores:
+
+1. **Modo ANSI (Recomendado)**: Usa automáticamente el esquema de colores de tu terminal
+   - Compatible con cualquier tema de terminal (Catppuccin, Gruvbox, Dracula, Nord, etc.)
+   - No requiere configuración
+   - Opción más compatible
+
+2. **Modo TrueColor**: Colores originales de Blugo (paleta de 256 colores)
+   - Apariencia consistente en todas las terminales
+   - Esquema de colores hardcoded
+
+Configura en `~/.config/blugo/config.toml`:
+```toml
+theme_mode = "ansi"  # Opciones: "ansi", "truecolor"
 ```
 
 ---
@@ -292,11 +313,11 @@ docker run --rm -it --privileged --net=host \
 - ✅ Configuración persistente
 - ✅ Soporte de archivos de configuración (TOML/YAML)
 - ✅ Tests unitarios e integración
+- ✅ Tomar esquema de color desde la terminal
 
 ### Características Planeadas
 - [ ] Soporte para múltiples adaptadores Bluetooth
 - [ ] Logging y debugging mejorado
-- [ ] Temas de color personalizables
 
 ---
 
