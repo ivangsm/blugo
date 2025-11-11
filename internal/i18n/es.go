@@ -56,12 +56,14 @@ var spanishTranslations = Translations{
 	PairingCancelled:   "Pairing cancelado",
 
 	// Help
-	HelpNavigation:     "↑/↓: navegar | tab: cambiar | enter: conectar | d/x: olvidar",
-	HelpActions:        "↑/↓: navegar | tab: cambiar | enter: desconectar | d/x: olvidar",
-	HelpAdapterControl: "s: escaneo | p: encendido | v: descubrible | b: pairable | l: idioma | r: refrescar | q: salir",
-	HelpScroll:         "RePág/AvPág: página | Ctrl+↑/↓: scroll | Inicio/Fin: arriba/abajo | Rueda ratón: scroll",
+	HelpNavigation:     "↑↓, kj: navegar | enter: conectar/desconectar | d/x: olvidar | q: salir",
+	HelpActions:        "↑↓, kj: navegar | enter: desconectar | d/x: olvidar",
+	HelpAdapterControl: "s: escaneo | p: encendido | v: descubrible | b: pairable | l: idioma | r: refrescar",
+	HelpScroll:         "RePág/AvPág: página | Ctrl+↑↓, kj: scroll | Inicio/Fin: arriba/abajo | Rueda ratón: scroll",
 	HelpGeneral:        "q: salir",
 	HelpPairing:        "enter: confirmar | n/esc: cancelar | q: salir",
+	HelpCollapsed:      "?: mostrar ayuda | q: salir",
+	HelpExpanded:       "?: ocultar ayuda",
 
 	// Adapter table
 	AdapterName:         "Nombre",
@@ -69,6 +71,14 @@ var spanishTranslations = Translations{
 	AdapterPower:        "Energía",
 	AdapterPairable:     "Pairable",
 	AdapterDiscoverable: "Descubrible",
+
+	// Device table
+	DeviceIcon:    "Icono",
+	DeviceName:    "Nombre",
+	DeviceAddress: "Dirección",
+	DeviceRSSI:    "Señal",
+	DeviceBattery: "Batería",
+	DeviceStatus:  "Estado",
 
 	// Status
 	StatusOn:  "ON",
@@ -96,6 +106,7 @@ var spanishTranslations = Translations{
 	ErrorSetAdapterPairable:     "Error al cambiar modo pairable",
 	ErrorSetAdapterAlias:        "Error al cambiar alias del adaptador",
 	ErrorForgetDevice:           "Error al olvidar dispositivo",
+	ErrorChangeProperty:         "Error al cambiar",
 
 	// Status messages
 	StatusConfirmingPairing:  "Confirmando pairing...",
@@ -104,4 +115,12 @@ var spanishTranslations = Translations{
 	// Warnings
 	WarningAgentRegistration:       "⚠️  Advertencia: No se pudo registrar agente de pairing",
 	WarningAgentRegistrationDetail: "   La app funcionará pero algunos dispositivos pueden requerir pairing manual.",
+
+	// Agent errors (internal)
+	ErrorRequestPasskey:   "No se puede solicitar passkey en TUI",
+	ErrorPairingCancelled: "Pairing cancelado por el usuario",
+	ErrorConfirmRejected:  "Confirmación rechazada",
+	ErrorExportAgent:      "No se pudo exportar agente",
+	ErrorExportIntrospect: "No se pudo exportar introspección",
+	ErrorRegisterAgent:    "No se pudo registrar agente",
 }

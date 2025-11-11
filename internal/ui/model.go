@@ -3,6 +3,7 @@ package ui
 import (
 	"sort"
 
+	"github.com/charmbracelet/bubbles/table"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/ivangsm/blugo/internal/agent"
@@ -30,7 +31,9 @@ type Model struct {
 	width             int // Terminal width
 	height            int // Terminal height
 	viewport          viewport.Model
-	ready             bool // Indicates if the viewport is ready
+	ready             bool          // Indicates if the viewport is ready
+	showHelp          bool          // Toggle for showing full help
+	devicesTable      table.Model   // Table for displaying devices
 }
 
 // NewModel creates a new UI model.
@@ -115,15 +118,13 @@ func (m Model) GetConnectedDevices() []*models.Device {
 
 // GetSelectedDevice returns the currently selected device.
 func (m Model) GetSelectedDevice() *models.Device {
-	var devices []*models.Device
-	if m.focusSection == "connected" {
-		devices = m.GetConnectedDevices()
-	} else {
-		devices = m.GetFoundDevices()
-	}
+	devices := m.GetFoundDevices()
 
-	if m.selectedIndex < len(devices) {
-		return devices[m.selectedIndex]
+	// Get cursor position from table
+	cursor := m.devicesTable.Cursor()
+
+	if cursor >= 0 && cursor < len(devices) {
+		return devices[cursor]
 	}
 	return nil
 }

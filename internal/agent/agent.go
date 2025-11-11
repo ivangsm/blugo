@@ -1,11 +1,13 @@
 package agent
 
 import (
+	"errors"
 	"fmt"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/godbus/dbus/v5"
 	"github.com/godbus/dbus/v5/introspect"
+	"github.com/ivangsm/blugo/internal/i18n"
 )
 
 const (
@@ -104,7 +106,7 @@ func (a *Agent) DisplayPinCode(device dbus.ObjectPath, pincode string) *dbus.Err
 
 // RequestPasskey requests a passkey from the user.
 func (a *Agent) RequestPasskey(device dbus.ObjectPath) (uint32, *dbus.Error) {
-	return 0, dbus.MakeFailedError(fmt.Errorf("no se puede solicitar passkey en TUI"))
+	return 0, dbus.MakeFailedError(errors.New(i18n.T.ErrorRequestPasskey))
 }
 
 // DisplayPasskey shows a 6-digit passkey.
@@ -116,7 +118,7 @@ func (a *Agent) DisplayPasskey(device dbus.ObjectPath, passkey uint32, entered u
 	// Wait for user confirmation
 	confirmed := <-a.confirmChannel
 	if !confirmed {
-		return dbus.MakeFailedError(fmt.Errorf("pairing cancelado por el usuario"))
+		return dbus.MakeFailedError(errors.New(i18n.T.ErrorPairingCancelled))
 	}
 
 	return nil
@@ -130,7 +132,7 @@ func (a *Agent) RequestConfirmation(device dbus.ObjectPath, passkey uint32) *dbu
 
 	confirmed := <-a.confirmChannel
 	if !confirmed {
-		return dbus.MakeFailedError(fmt.Errorf("confirmación rechazada"))
+		return dbus.MakeFailedError(errors.New(i18n.T.ErrorConfirmRejected))
 	}
 
 	return nil
@@ -165,14 +167,14 @@ func (a *Agent) Register(conn *dbus.Conn) error {
 	// Export the agent on DBus
 	err := conn.Export(a, agentPath, agentIface)
 	if err != nil {
-		return fmt.Errorf("no se pudo exportar agente: %w", err)
+		return fmt.Errorf("%s: %w", i18n.T.ErrorExportAgent, err)
 	}
 
 	// Export introspection
 	err = conn.Export(introspect.Introspectable(agentIntrospection), agentPath,
 		"org.freedesktop.DBus.Introspectable")
 	if err != nil {
-		return fmt.Errorf("no se pudo exportar introspección: %w", err)
+		return fmt.Errorf("%s: %w", i18n.T.ErrorExportIntrospect, err)
 	}
 
 	// Register the agent with BlueZ
@@ -184,7 +186,7 @@ func (a *Agent) Register(conn *dbus.Conn) error {
 		// If it fails, try NoInputNoOutput
 		err = obj.Call("org.bluez.AgentManager1.RegisterAgent", 0, agentPath, "NoInputNoOutput").Err
 		if err != nil {
-			return fmt.Errorf("no se pudo registrar agente: %w", err)
+			return fmt.Errorf("%s: %w", i18n.T.ErrorRegisterAgent, err)
 		}
 	}
 

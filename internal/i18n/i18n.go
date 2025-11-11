@@ -75,6 +75,8 @@ type Translations struct {
 	HelpScroll         string
 	HelpGeneral        string
 	HelpPairing        string
+	HelpCollapsed      string
+	HelpExpanded       string
 
 	// Adapter table
 	AdapterName         string
@@ -82,6 +84,14 @@ type Translations struct {
 	AdapterPower        string
 	AdapterPairable     string
 	AdapterDiscoverable string
+
+	// Device table
+	DeviceIcon    string
+	DeviceName    string
+	DeviceAddress string
+	DeviceRSSI    string
+	DeviceBattery string
+	DeviceStatus  string
 
 	// Status
 	StatusOn  string
@@ -109,6 +119,7 @@ type Translations struct {
 	ErrorSetAdapterPairable     string
 	ErrorSetAdapterAlias        string
 	ErrorForgetDevice           string
+	ErrorChangeProperty         string
 
 	// Status messages
 	StatusConfirmingPairing  string
@@ -117,6 +128,14 @@ type Translations struct {
 	// Warnings
 	WarningAgentRegistration       string
 	WarningAgentRegistrationDetail string
+
+	// Agent errors (internal)
+	ErrorRequestPasskey    string
+	ErrorPairingCancelled  string
+	ErrorConfirmRejected   string
+	ErrorExportAgent       string
+	ErrorExportIntrospect  string
+	ErrorRegisterAgent     string
 }
 
 var currentLang Language = English // Default language

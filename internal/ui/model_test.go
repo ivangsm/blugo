@@ -494,40 +494,24 @@ func TestModel_GetSelectedDevice(t *testing.T) {
 	}
 
 	tests := []struct {
-		name          string
-		focusSection  string
-		selectedIndex int
-		expectedAddr  string // Empty string means expecting nil
+		name         string
+		cursorIndex  int
+		expectedAddr string
 	}{
 		{
-			name:          "returns first available device when focus on found",
-			focusSection:  "found",
-			selectedIndex: 0,
-			expectedAddr:  "AA:BB:CC:DD:EE:FF",
+			name:         "returns first device",
+			cursorIndex:  0,
+			expectedAddr: "AA:BB:CC:DD:EE:FF",
 		},
 		{
-			name:          "returns second available device when focus on found",
-			focusSection:  "found",
-			selectedIndex: 1,
-			expectedAddr:  "11:22:33:44:55:66",
+			name:         "returns second device",
+			cursorIndex:  1,
+			expectedAddr: "11:22:33:44:55:66",
 		},
 		{
-			name:          "returns connected device when focus on connected",
-			focusSection:  "connected",
-			selectedIndex: 0,
-			expectedAddr:  "77:88:99:AA:BB:CC",
-		},
-		{
-			name:          "returns nil when index out of bounds for found",
-			focusSection:  "found",
-			selectedIndex: 10,
-			expectedAddr:  "",
-		},
-		{
-			name:          "returns nil when index out of bounds for connected",
-			focusSection:  "connected",
-			selectedIndex: 10,
-			expectedAddr:  "",
+			name:         "returns third device",
+			cursorIndex:  2,
+			expectedAddr: "77:88:99:AA:BB:CC",
 		},
 	}
 
@@ -539,25 +523,23 @@ func TestModel_GetSelectedDevice(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			m := Model{
-				devices:       devices,
-				deviceOrder:   []string{"AA:BB:CC:DD:EE:FF", "11:22:33:44:55:66", "77:88:99:AA:BB:CC"},
-				focusSection:  tt.focusSection,
-				selectedIndex: tt.selectedIndex,
+				devices:     devices,
+				deviceOrder: []string{"AA:BB:CC:DD:EE:FF", "11:22:33:44:55:66", "77:88:99:AA:BB:CC"},
+				width:       100,
+				height:      40,
 			}
+			// Initialize the table
+			m.initDevicesTable()
+			// Set cursor to test position
+			m.devicesTable.SetCursor(tt.cursorIndex)
 
 			selected := m.GetSelectedDevice()
 
-			if tt.expectedAddr == "" {
-				if selected != nil {
-					t.Errorf("GetSelectedDevice() = %v, want nil", selected.Address)
-				}
-			} else {
-				if selected == nil {
-					t.Fatalf("GetSelectedDevice() = nil, want device with address %s", tt.expectedAddr)
-				}
-				if selected.Address != tt.expectedAddr {
-					t.Errorf("GetSelectedDevice().Address = %v, want %v", selected.Address, tt.expectedAddr)
-				}
+			if selected == nil {
+				t.Fatalf("GetSelectedDevice() = nil, want device with address %s", tt.expectedAddr)
+			}
+			if selected.Address != tt.expectedAddr {
+				t.Errorf("GetSelectedDevice().Address = %v, want %v", selected.Address, tt.expectedAddr)
 			}
 		})
 	}

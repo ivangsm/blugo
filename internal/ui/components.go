@@ -61,8 +61,16 @@ func (m Model) renderFooter() string {
 
 	if m.pairingPasskey != nil {
 		helpText = HelpStyle.Render(i18n.T.HelpPairing)
+	} else if m.showHelp {
+		// Show full help when expanded
+		helpText = HelpStyle.Render(
+			i18n.T.HelpNavigation + " | " + i18n.T.HelpExpanded + "\n" +
+			i18n.T.HelpAdapterControl + "\n" +
+			i18n.T.HelpScroll,
+		)
 	} else {
-		helpText = HelpStyle.Render(i18n.T.HelpNavigation + "\n" + i18n.T.HelpAdapterControl + "\n" + i18n.T.HelpScroll)
+		// Show collapsed help
+		helpText = HelpStyle.Render(i18n.T.HelpCollapsed)
 	}
 
 	// Use effective width
@@ -281,104 +289,90 @@ func (m Model) renderAdapterTable() string {
 		return BoxStyle.Render(MutedStyle.Render(i18n.T.StatusLoadingAdapterInfo))
 	}
 
-	// Define consistent column widths
-	const (
-		labelWidth = 14
-		valueWidth = 18
-	)
+	// Use effective width
+	effectiveWidth := min(m.width, GetMaxWidth())
+	if effectiveWidth <= 0 {
+		effectiveWidth = 80
+	}
 
-	// Style for labels (left)
-	labelStyle := lipgloss.NewStyle().
+	// BoxStyle has Padding(0, 1) and borders
+	// Border = 2 chars, Padding = 2 chars (1 on each side) = 4 total
+	// Additional adjustment for alignment
+	availableWidth := effectiveWidth - 6
+
+	// Calculate column width (5 columns, distribute evenly)
+	colWidth := availableWidth / 5
+
+	// Header style
+	headerStyle := lipgloss.NewStyle().
 		Bold(true).
 		Foreground(secondaryColor).
-		Width(labelWidth).
-		Align(lipgloss.Left)
+		Width(colWidth).
+		Align(lipgloss.Center)
 
-	// Style for values (left)
-	valueStyle := lipgloss.NewStyle().
-		Width(valueWidth).
-		Align(lipgloss.Left)
+	// Cell style
+	cellStyle := lipgloss.NewStyle().
+		Width(colWidth).
+		Align(lipgloss.Center)
 
-	// Create each table row: label | value
-	rows := []string{}
+	// Build header row
+	headers := []string{
+		headerStyle.Render(i18n.T.AdapterName),
+		headerStyle.Render(i18n.T.AdapterAlias),
+		headerStyle.Render(i18n.T.AdapterPower),
+		headerStyle.Render(i18n.T.AdapterPairable),
+		headerStyle.Render(i18n.T.AdapterDiscoverable),
+	}
+	headerRow := lipgloss.JoinHorizontal(lipgloss.Top, headers...)
 
-	// Row 1: Name
-	nameRow := lipgloss.JoinHorizontal(
-		lipgloss.Top,
-		labelStyle.Render(i18n.T.AdapterName+":"),
-		valueStyle.Render(m.adapter.Name),
-	)
-	rows = append(rows, nameRow)
+	// Build separator
+	separator := SeparatorStyle.Render(strings.Repeat("─", availableWidth))
 
-	// Row 2: Alias
-	aliasRow := lipgloss.JoinHorizontal(
-		lipgloss.Top,
-		labelStyle.Render(i18n.T.AdapterAlias+":"),
-		valueStyle.Render(m.adapter.Alias),
-	)
-	rows = append(rows, aliasRow)
-
-	// Row 3: Power (with color)
-	var powerText string
+	// Build data row with color coding
+	powerText := ErrorStyle.Render(i18n.T.StatusOff)
 	if m.adapter.Powered {
 		powerText = SuccessStyle.Render(i18n.T.StatusOn)
-	} else {
-		powerText = ErrorStyle.Render(i18n.T.StatusOff)
 	}
-	powerRow := lipgloss.JoinHorizontal(
-		lipgloss.Top,
-		labelStyle.Render(i18n.T.AdapterPower+":"),
-		valueStyle.Render(powerText),
-	)
-	rows = append(rows, powerRow)
 
-	// Row 4: Pairable (with color)
-	var pairableText string
+	pairableText := MutedStyle.Render(i18n.T.StatusOff)
 	if m.adapter.Pairable {
 		pairableText = SuccessStyle.Render(i18n.T.StatusOn)
-	} else {
-		pairableText = MutedStyle.Render(i18n.T.StatusOff)
 	}
-	pairableRow := lipgloss.JoinHorizontal(
-		lipgloss.Top,
-		labelStyle.Render(i18n.T.AdapterPairable+":"),
-		valueStyle.Render(pairableText),
-	)
-	rows = append(rows, pairableRow)
 
-	// Row 5: Discoverable (with color)
-	var discoverableText string
+	discoverableText := MutedStyle.Render(i18n.T.StatusOff)
 	if m.adapter.Discoverable {
 		discoverableText = SuccessStyle.Render(i18n.T.StatusOn)
-	} else {
-		discoverableText = MutedStyle.Render(i18n.T.StatusOff)
 	}
-	discoverableRow := lipgloss.JoinHorizontal(
-		lipgloss.Top,
-		labelStyle.Render(i18n.T.AdapterDiscoverable+":"),
-		valueStyle.Render(discoverableText),
+
+	cells := []string{
+		cellStyle.Render(m.adapter.Name),
+		cellStyle.Render(m.adapter.Alias),
+		cellStyle.Render(powerText),
+		cellStyle.Render(pairableText),
+		cellStyle.Render(discoverableText),
+	}
+	dataRow := lipgloss.JoinHorizontal(lipgloss.Top, cells...)
+
+	// Combine table content
+	tableContent := lipgloss.JoinVertical(
+		lipgloss.Left,
+		headerRow,
+		separator,
+		dataRow,
 	)
-	rows = append(rows, discoverableRow)
 
-	// Join all rows vertically
-	tableContent := lipgloss.JoinVertical(lipgloss.Left, rows...)
-
-	// Table header
-	separator := SeparatorStyle.Render(strings.Repeat("─", labelWidth+valueWidth))
+	// Add title header with icon
+	title := HeaderStyle.Render(
+		fmt.Sprintf("%s %s", m.adapter.GetStatusIcon(), i18n.T.AdapterInfo),
+	)
+	titleSep := SeparatorStyle.Render(strings.Repeat("─", availableWidth))
 
 	table := lipgloss.JoinVertical(
 		lipgloss.Left,
-		HeaderStyle.Render(fmt.Sprintf("%s %s", m.adapter.GetStatusIcon(), i18n.T.AdapterInfo)),
-		separator,
+		title,
+		titleSep,
 		tableContent,
 	)
 
-	// Use effective width
-	effectiveWidth := min(m.width, GetMaxWidth())
-
-	if effectiveWidth > 0 {
-		return BoxStyle.Width(effectiveWidth - 4).Render(table)
-	}
-
-	return BoxStyle.Render(table)
+	return BoxStyle.Width(effectiveWidth - 4).Render(table)
 }

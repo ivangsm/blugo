@@ -40,7 +40,7 @@ func InitializeCmd(program *tea.Program) tea.Cmd {
 		if autoStart {
 			err = manager.StartDiscovery()
 			if err != nil {
-				return InitMsg{Err: fmt.Errorf("no se pudo iniciar descubrimiento: %w", err)}
+				return InitMsg{Err: fmt.Errorf("%s: %w", i18n.T.ErrorStartDiscovery, err)}
 			}
 			scanningStarted = true
 		}
@@ -85,7 +85,7 @@ func connectToDeviceCmd(manager *bluetooth.Manager, dev *models.Device) tea.Cmd 
 		if !dev.Paired {
 			err := manager.PairDevice(dev.Path)
 			if err != nil {
-				return ConnectResultMsg{Address: dev.Address, Success: false, Err: fmt.Errorf("error al parear: %w", err)}
+				return ConnectResultMsg{Address: dev.Address, Success: false, Err: fmt.Errorf("%s: %w", i18n.T.ErrorPairDevice, err)}
 			}
 
 			// Trust the device (if enabled in config)
@@ -107,7 +107,7 @@ func connectToDeviceCmd(manager *bluetooth.Manager, dev *models.Device) tea.Cmd 
 		// Connect
 		err := manager.ConnectDevice(dev.Path)
 		if err != nil {
-			return ConnectResultMsg{Address: dev.Address, Success: false, Err: fmt.Errorf("error al conectar: %w", err)}
+			return ConnectResultMsg{Address: dev.Address, Success: false, Err: fmt.Errorf("%s: %w", i18n.T.ErrorConnectDevice, err)}
 		}
 
 		return ConnectResultMsg{Address: dev.Address, Success: true}
@@ -119,7 +119,7 @@ func disconnectFromDeviceCmd(manager *bluetooth.Manager, dev *models.Device) tea
 	return func() tea.Msg {
 		err := manager.DisconnectDevice(dev.Path)
 		if err != nil {
-			return ConnectResultMsg{Address: dev.Address, Success: false, Err: fmt.Errorf("error al desconectar: %w", err)}
+			return ConnectResultMsg{Address: dev.Address, Success: false, Err: fmt.Errorf("%s: %w", i18n.T.ErrorDisconnectDevice, err)}
 		}
 		return ConnectResultMsg{Address: dev.Address, Success: true}
 	}

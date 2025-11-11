@@ -99,8 +99,8 @@ func (m Model) renderLoadingView() string {
 func (m Model) renderSingleColumnLayout() string {
 	sections := []string{}
 
-	// Available devices section (now includes all devices)
-	sections = append(sections, m.renderFoundDevicesSection())
+	// Available devices section with table
+	sections = append(sections, m.renderDevicesTable())
 
 	return lipgloss.JoinVertical(lipgloss.Left, sections...)
 }

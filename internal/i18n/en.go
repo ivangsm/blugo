@@ -56,12 +56,14 @@ var englishTranslations = Translations{
 	PairingCancelled:   "Pairing cancelled",
 
 	// Help
-	HelpNavigation:     "↑/↓: navigate | tab: switch | enter: connect | d/x: forget",
-	HelpActions:        "↑/↓: navigate | tab: switch | enter: disconnect | d/x: forget",
-	HelpAdapterControl: "s: scan | p: power | v: discoverable | b: pairable | l: language | r: refresh | q: quit",
-	HelpScroll:         "PgUp/PgDn: scroll page | Ctrl+↑/↓: scroll | Home/End: top/bottom | Mouse wheel: scroll",
+	HelpNavigation:     "↑↓, kj: navigate | enter: connect/disconnect | d/x: forget | q: quit",
+	HelpActions:        "↑↓, kj: navigate | enter: disconnect | d/x: forget",
+	HelpAdapterControl: "s: scan | p: power | v: discoverable | b: pairable | l: language | r: refresh",
+	HelpScroll:         "PgUp/PgDn: scroll page | Ctrl+↑↓, kj: scroll | Home/End: top/bottom | Mouse wheel: scroll",
 	HelpGeneral:        "q: quit",
 	HelpPairing:        "enter: confirm | n/esc: cancel | q: quit",
+	HelpCollapsed:      "?: toggle help | q: quit",
+	HelpExpanded:       "?: hide help",
 
 	// Adapter table
 	AdapterName:         "Name",
@@ -69,6 +71,14 @@ var englishTranslations = Translations{
 	AdapterPower:        "Power",
 	AdapterPairable:     "Pairable",
 	AdapterDiscoverable: "Discoverable",
+
+	// Device table
+	DeviceIcon:    "Icon",
+	DeviceName:    "Name",
+	DeviceAddress: "Address",
+	DeviceRSSI:    "Signal",
+	DeviceBattery: "Battery",
+	DeviceStatus:  "Status",
 
 	// Status
 	StatusOn:  "ON",
@@ -96,6 +106,7 @@ var englishTranslations = Translations{
 	ErrorSetAdapterPairable:     "Error changing pairable mode",
 	ErrorSetAdapterAlias:        "Error changing adapter alias",
 	ErrorForgetDevice:           "Error forgetting device",
+	ErrorChangeProperty:         "Error changing",
 
 	// Status messages
 	StatusConfirmingPairing:  "Confirming pairing...",
@@ -104,4 +115,12 @@ var englishTranslations = Translations{
 	// Warnings
 	WarningAgentRegistration:       "⚠️  Warning: Could not register pairing agent",
 	WarningAgentRegistrationDetail: "   The app will work but some devices may require manual pairing.",
+
+	// Agent errors (internal)
+	ErrorRequestPasskey:   "Cannot request passkey in TUI",
+	ErrorPairingCancelled: "Pairing cancelled by user",
+	ErrorConfirmRejected:  "Confirmation rejected",
+	ErrorExportAgent:      "Could not export agent",
+	ErrorExportIntrospect: "Could not export introspection",
+	ErrorRegisterAgent:    "Could not register agent",
 }

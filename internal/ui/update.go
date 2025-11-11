@@ -35,6 +35,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.viewport.Height = msg.Height
 		}
 
+		// Reinitialize table with new width
+		if len(m.devices) > 0 {
+			m.initDevicesTable()
+		}
+
 		// Update viewport content
 		m.updateViewportContent()
 
@@ -116,11 +121,11 @@ func (m Model) handleKeyPress(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		m.viewport.ViewDown()
 		return m, nil
 
-	case "ctrl+up":
+	case "ctrl+up", "ctrl+k":
 		m.viewport.LineUp(3)
 		return m, nil
 
-	case "ctrl+down":
+	case "ctrl+down", "ctrl+j":
 		m.viewport.LineDown(3)
 		return m, nil
 
@@ -132,19 +137,12 @@ func (m Model) handleKeyPress(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		m.viewport.GotoBottom()
 		return m, nil
 
-	// Device navigation
-	case "up", "k":
-		if m.selectedIndex > 0 {
-			m.selectedIndex--
-			m.updateViewportContent()
-		}
-
-	case "down", "j":
-		maxIndex := len(m.GetFoundDevices()) - 1
-		if m.selectedIndex < maxIndex {
-			m.selectedIndex++
-			m.updateViewportContent()
-		}
+	// Device navigation - delegate to table
+	case "up", "k", "down", "j":
+		var cmd tea.Cmd
+		m.devicesTable, cmd = m.devicesTable.Update(msg)
+		m.updateViewportContent()
+		return m, cmd
 
 	// Tab navigation removed since we only have one section now
 
@@ -214,6 +212,12 @@ func (m Model) handleKeyPress(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			_ = config.Global.Save()
 		}
 
+		m.updateViewportContent()
+		return m, nil
+
+	case "?":
+		// Toggle help display
+		m.showHelp = !m.showHelp
 		m.updateViewportContent()
 		return m, nil
 	}
@@ -320,6 +324,7 @@ func (m Model) handleInit(msg InitMsg) (tea.Model, tea.Cmd) {
 	} else {
 		m.statusMessage = i18n.T.ScanPaused
 	}
+	m.initDevicesTable()
 	m.updateViewportContent()
 	return m, tea.Batch(
 		updateDevicesCmd(m.manager),
@@ -354,6 +359,7 @@ func (m Model) handleDeviceUpdate(msg DeviceUpdateMsg) (tea.Model, tea.Cmd) {
 		}
 		m.devices[addr] = newDev
 	}
+	m.initDevicesTable()
 	m.updateViewportContent()
 	return m, nil
 }
@@ -425,15 +431,8 @@ func (m Model) handleForgetDevice(msg ForgetDeviceMsg) (tea.Model, tea.Cmd) {
 		}
 	}
 
-	// Adjust selectedIndex if necessary
-	maxIndex := len(m.GetFoundDevices()) - 1
-	if m.selectedIndex > maxIndex {
-		m.selectedIndex = maxIndex
-	}
-	if m.selectedIndex < 0 {
-		m.selectedIndex = 0
-	}
-
+	// Reinitialize table with updated devices
+	m.initDevicesTable()
 	m.updateViewportContent()
 	return m, updateDevicesCmd(m.manager)
 }
@@ -450,7 +449,7 @@ func (m Model) handleAdapterPropertyChanged(msg AdapterPropertyChangedMsg) (tea.
 	m.busy = false
 
 	if msg.Err != nil {
-		m.statusMessage = fmt.Sprintf("❌ Error al cambiar %s: %s", msg.Property, msg.Err.Error())
+		m.statusMessage = fmt.Sprintf("%s %s: %s", i18n.T.ErrorChangeProperty, msg.Property, msg.Err.Error())
 		m.isError = true
 		m.updateViewportContent()
 		return m, nil
