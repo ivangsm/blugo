@@ -27,12 +27,15 @@ Español | [English](README.md)
 - **Información del adaptador**: Ver estado detallado y configuración del adaptador
 
 ### Interfaz Moderna
-- **Diseño responsivo**: Se adapta a cualquier tamaño de terminal
+- **Layout basado en tablas**: Visualización tabular limpia para dispositivos e info del adaptador
+- **Diseño responsivo**: Las tablas se adaptan dinámicamente a cualquier tamaño de terminal
 - **Layout limpio**: Diseño de una columna con espaciado apropiado
 - **Feedback visual**: Iconos, badges y estados con códigos de color
 - **Actualizaciones en tiempo real**: Refresco automático cada 2 segundos
 - **Control de escaneo**: Pausar/reanudar el escaneo con indicador visual
+- **Ayuda colapsable**: Ayuda mínima por defecto, expandible con tecla `?`
 - **Modo pantalla alternativa**: Terminal limpia al salir y redimensionar
+- **Navegación estilo Vim**: Soporte para flechas y navegación k/j
 - **Internacionalización**: Soporte completo de i18n (Inglés/Español), fácilmente extensible para más idiomas
 - **Temas flexibles**: Se adapta automáticamente al tema de tu terminal o usa colores personalizados
 
@@ -48,38 +51,46 @@ Español | [English](README.md)
 
 ╭────────────────────────────────────────────────────────────────╮
 │                                                                │
-│ 📡 Dispositivos Disponibles (3)                                │
+│ 📡 DISPOSITIVOS DISPONIBLES                                    │
 │ ────────────────────────────────────────────────────────────   │
 │                                                                │
-│ ▶ 🎧 Sony WH-1000XM4 (AA:BB:CC:DD:EE:FF)                      │
-│   | -45 dBm | 🔋 85%                                           │
-│   [CONECTADO]                                                  │
-│                                                                │
-│   ⌨️  Keychron K3 (11:22:33:44:55:66)                          │
-│   | -38 dBm | 🔋 60%                                           │
-│   [PAREADO]                                                    │
-│                                                                │
-│   🖱️  Logitech MX Master 3 (FF:EE:DD:CC:BB:AA)                │
-│   | -52 dBm | 🪫 12%                                           │
+│ ┌──────────────────────────────────────────────────────────┐  │
+│ │    │ Nombre           │ Dirección       │ Señal │Batería│  │
+│ ├──────────────────────────────────────────────────────────┤  │
+│ │ 🎧 │ Sony WH-1000XM4  │ AA:BB:CC:DD:... │ -45   │ 🔋 85%│  │
+│ │ ⌨️  │ Keychron K3      │ 11:22:33:44:... │ -38   │ 🔋 60%│  │
+│ │ 🖱️  │ MX Master 3      │ FF:EE:DD:CC:... │ -52   │ 🪫 12%│  │
+│ └──────────────────────────────────────────────────────────┘  │
 │                                                                │
 ╰────────────────────────────────────────────────────────────────╯
 
 ╭────────────────────────────────────────────────────────────────╮
 │                                                                │
-│ Información del Adaptador                                      │
+│ 🔌 Adaptador Bluetooth                                         │
 │ ────────────────────────────────────────────────────────────   │
-│ Nombre:        hci0                                            │
-│ Alias:         Mi Laptop                                       │
-│ Encendido:     ✓ Sí                                            │
-│ Pairable:      ✓ Sí                                            │
-│ Descubrible:   ✗ No                                            │
+│                                                                │
+│ ┌──────────────────────────────────────────────────────────┐  │
+│ │ Nombre│ Alias      │ Energía│ Pairable│ Descubrible    │  │
+│ ├──────────────────────────────────────────────────────────┤  │
+│ │ hci0  │ Mi Laptop  │ ON     │ ON      │ OFF            │  │
+│ └──────────────────────────────────────────────────────────┘  │
 │                                                                │
 ╰────────────────────────────────────────────────────────────────╯
 
 ╭────────────────────────────────────────────────────────────────╮
-│ ↑/k: Seleccionar  Enter: Conectar/Desconectar  D/X: Olvidar  │
-│ S: Alternar Escaneo  P: Encendido  V: Descubrible             │
-│ B: Pairable  L: Idioma  Q: Salir                              │
+│ ?: mostrar ayuda | q: salir                                    │
+╰────────────────────────────────────────────────────────────────╯
+```
+
+**Ayuda expandida (presiona `?`):**
+```
+╭────────────────────────────────────────────────────────────────╮
+│ ↑↓, kj: navegar | enter: conectar/desconectar | d/x: olvidar │
+│ | q: salir | ?: ocultar ayuda                                  │
+│ s: escaneo | p: encendido | v: descubrible | b: pairable      │
+│ | l: idioma | r: refrescar                                     │
+│ RePág/AvPág: página | Ctrl+↑↓, kj: scroll                     │
+│ | Inicio/Fin: arriba/abajo | Rueda ratón: scroll              │
 ╰────────────────────────────────────────────────────────────────╯
 ```
 
@@ -186,10 +197,15 @@ blugo
 
 ### Controles de Teclado
 
+**Sistema de Ayuda:**
+- `?`: Alternar ayuda (mostrar/ocultar ayuda completa)
+- Por defecto, solo se muestra ayuda mínima: `?: mostrar ayuda | q: salir`
+- Presiona `?` para expandir y ver todos los comandos disponibles
+
 **Navegación:**
-- `↑/↓` o `k/j`: Navegar entre dispositivos
+- `↑/↓` o `k/j`: Navegar entre dispositivos en la tabla
 - `PgUp/PgDn`: Desplazar vista por página
-- `Ctrl+↑/↓`: Desplazar vista por línea
+- `Ctrl+↑/↓` o `Ctrl+k/j`: Desplazar vista por línea
 - `Home/End`: Saltar al inicio/final de la lista
 - `r`: Refrescar lista de dispositivos manualmente
 
