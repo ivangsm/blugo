@@ -187,7 +187,7 @@ func TestModel_GetFoundDevices(t *testing.T) {
 			expectedCount: 2,
 			validateDevices: func(t *testing.T, devices []*models.Device) {
 				for _, dev := range devices {
-					if dev.Name == "" && dev.Alias == "" {
+					if !dev.HasRealName() {
 						t.Errorf("GetFoundDevices() should filter unnamed devices when configured")
 					}
 				}

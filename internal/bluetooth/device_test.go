@@ -390,3 +390,59 @@ func TestParseDevice_EdgeCases(t *testing.T) {
 		}
 	})
 }
+
+
+func TestParseDevice_DoesNotUseAliasWhenItIsMAC(t *testing.T) {
+	makeVariant := func(v interface{}) dbus.Variant {
+		return dbus.MakeVariant(v)
+	}
+
+	tests := []struct {
+		name    string
+		address string
+		alias   string
+	}{
+		{
+			name:    "does not use Alias when it matches Address with dashes",
+			address: "AA:BB:CC:DD:EE:FF",
+			alias:   "AA-BB-CC-DD-EE-FF",
+		},
+		{
+			name:    "does not use Alias when it matches Address exactly",
+			address: "AA:BB:CC:DD:EE:FF",
+			alias:   "AA:BB:CC:DD:EE:FF",
+		},
+		{
+			name:    "does not use lowercase Alias matching Address",
+			address: "AA:BB:CC:DD:EE:FF",
+			alias:   "aa-bb-cc-dd-ee-ff",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			dev := parseDevice(
+				"/org/bluez/hci0/dev_AA_BB_CC_DD_EE_FF",
+				map[string]map[string]dbus.Variant{
+					bluezDeviceIface: {
+						"Address": makeVariant(tt.address),
+						"Name":    makeVariant(""),
+						"Alias":   makeVariant(tt.alias),
+					},
+				},
+				map[string]dbus.Variant{
+					"Address": makeVariant(tt.address),
+					"Name":    makeVariant(""),
+					"Alias":   makeVariant(tt.alias),
+				},
+			)
+
+			if dev.Name != "" {
+				t.Errorf("Name should be empty when Alias is MAC address, got %q", dev.Name)
+			}
+			if dev.Alias != tt.alias {
+				t.Errorf("Alias = %v, want %v", dev.Alias, tt.alias)
+			}
+		})
+	}
+}

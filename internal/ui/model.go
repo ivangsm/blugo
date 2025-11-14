@@ -74,7 +74,7 @@ func (m Model) GetFoundDevices() []*models.Device {
 		}
 
 		// Filter unnamed devices if configured
-		if hideUnnamed && dev.Name == "" && dev.Alias == "" {
+		if hideUnnamed && !dev.HasRealName() {
 			continue
 		}
 

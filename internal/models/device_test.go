@@ -496,3 +496,173 @@ func TestDevice_Integration(t *testing.T) {
 		t.Errorf("HasBattery() should return true for device with battery")
 	}
 }
+
+func TestNormalizeMAC(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{
+			name:     "normalizes MAC with colons",
+			input:    "AA:BB:CC:DD:EE:FF",
+			expected: "aabbccddeeff",
+		},
+		{
+			name:     "normalizes MAC with dashes",
+			input:    "AA-BB-CC-DD-EE-FF",
+			expected: "aabbccddeeff",
+		},
+		{
+			name:     "normalizes MAC with mixed case",
+			input:    "Aa:Bb:Cc:Dd:Ee:Ff",
+			expected: "aabbccddeeff",
+		},
+		{
+			name:     "normalizes already normalized MAC",
+			input:    "aabbccddeeff",
+			expected: "aabbccddeeff",
+		},
+		{
+			name:     "handles empty string",
+			input:    "",
+			expected: "",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := NormalizeMAC(tt.input)
+			if result != tt.expected {
+				t.Errorf("NormalizeMAC(%q) = %q, want %q", tt.input, result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestIsAliasMACAddress(t *testing.T) {
+	tests := []struct {
+		name     string
+		alias    string
+		address  string
+		expected bool
+	}{
+		{
+			name:     "detects MAC with dashes as same as colons",
+			alias:    "AA-BB-CC-DD-EE-FF",
+			address:  "AA:BB:CC:DD:EE:FF",
+			expected: true,
+		},
+		{
+			name:     "detects lowercase MAC with dashes",
+			alias:    "aa-bb-cc-dd-ee-ff",
+			address:  "AA:BB:CC:DD:EE:FF",
+			expected: true,
+		},
+		{
+			name:     "detects different MACs",
+			alias:    "11-22-33-44-55-66",
+			address:  "AA:BB:CC:DD:EE:FF",
+			expected: false,
+		},
+		{
+			name:     "detects real device name vs MAC",
+			alias:    "My Bluetooth Device",
+			address:  "AA:BB:CC:DD:EE:FF",
+			expected: false,
+		},
+		{
+			name:     "handles identical format",
+			alias:    "AA:BB:CC:DD:EE:FF",
+			address:  "AA:BB:CC:DD:EE:FF",
+			expected: true,
+		},
+		{
+			name:     "handles empty alias",
+			alias:    "",
+			address:  "AA:BB:CC:DD:EE:FF",
+			expected: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := IsAliasMACAddress(tt.alias, tt.address)
+			if result != tt.expected {
+				t.Errorf("IsAliasMACAddress(%q, %q) = %v, want %v", tt.alias, tt.address, result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestDevice_HasRealName(t *testing.T) {
+	tests := []struct {
+		name     string
+		device   Device
+		expected bool
+	}{
+		{
+			name: "returns true when Name is set",
+			device: Device{
+				Name:    "My Device",
+				Alias:   "",
+				Address: "AA:BB:CC:DD:EE:FF",
+			},
+			expected: true,
+		},
+		{
+			name: "returns true when Alias is real name",
+			device: Device{
+				Name:    "",
+				Alias:   "Real Device Name",
+				Address: "AA:BB:CC:DD:EE:FF",
+			},
+			expected: true,
+		},
+		{
+			name: "returns false when Alias is MAC with dashes",
+			device: Device{
+				Name:    "",
+				Alias:   "AA-BB-CC-DD-EE-FF",
+				Address: "AA:BB:CC:DD:EE:FF",
+			},
+			expected: false,
+		},
+		{
+			name: "returns false when Alias is MAC with colons",
+			device: Device{
+				Name:    "",
+				Alias:   "AA:BB:CC:DD:EE:FF",
+				Address: "AA:BB:CC:DD:EE:FF",
+			},
+			expected: false,
+		},
+		{
+			name: "returns false when both Name and Alias are empty",
+			device: Device{
+				Name:    "",
+				Alias:   "",
+				Address: "AA:BB:CC:DD:EE:FF",
+			},
+			expected: false,
+		},
+		{
+			name: "returns true when Name is set even if Alias is MAC",
+			device: Device{
+				Name:    "Real Name",
+				Alias:   "AA-BB-CC-DD-EE-FF",
+				Address: "AA:BB:CC:DD:EE:FF",
+			},
+			expected: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := tt.device.HasRealName()
+			if result != tt.expected {
+				t.Errorf("HasRealName() = %v, want %v", result, tt.expected)
+			}
+		})
+	}
+}

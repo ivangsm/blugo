@@ -82,9 +82,14 @@ func parseDevice(path dbus.ObjectPath, interfaces map[string]map[string]dbus.Var
 		}
 	}
 
-	// Use Alias if no Name
+	// Use Alias as Name if no Name is set and Alias is not the MAC address
+	// BlueZ sets Alias to the MAC address (with - instead of :) when there's no real name
+	// Only check if Name is empty and Alias is not empty to avoid unnecessary calls
 	if dev.Name == "" && dev.Alias != "" {
-		dev.Name = dev.Alias
+		// Only do the expensive MAC comparison if we need to set the Name
+		if !models.IsAliasMACAddress(dev.Alias, dev.Address) {
+			dev.Name = dev.Alias
+		}
 	}
 
 	// Get battery information if available
